@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/*
+  Tailwind CSS v4 entry file.
+  - The single @import loads the entire Tailwind framework (preflight + design tokens + utilities).
+  - No PostCSS or tailwind.config.js is required for basic usage.
+  - Add a tailwind.config.js only if you need to customize the default theme or enable plugins.
+*/
