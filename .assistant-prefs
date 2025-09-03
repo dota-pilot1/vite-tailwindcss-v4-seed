@@ -21,7 +21,8 @@ react.memoization=minimal
 
 [GIT_AUTOCOMMIT]
 # 4. 트리거 문구: 사용자가 이 정확한 문자열을 단독 메시지로 보내면
-#    -> 변경 파일 전체 add + 커밋 + push 수행
+#    -> 변경 파일 전체 add + commit + push 수행
+#    (그 외 일반 구현 요청 시: push 자동 수행하지 않음, 필요 시 물어봄)
 commit.trigger="simple commit go"
 # 오타/대체 트리거(선택): "simpel commit go" (사용자가 잘못 입력한 패턴)
 commit.trigger.aliases="simpel commit go"
@@ -29,6 +30,10 @@ commit.trigger.aliases="simpel commit go"
 commit.branch=main
 # 자동 add 범위: all → 모든 변경 파일 추적
 commit.auto_add_paths=all
+# 자동 push 기본 비활성 (트리거 외에는 push 금지)
+commit.auto_push=false
+# 트리거 시에만 push
+commit.push_on_trigger=true
 # (선택) 특정 경로만: 예) src/**,apps/web/**
 # commit.auto_add_paths=src/**
 
