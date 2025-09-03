@@ -118,12 +118,14 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
         list: tree.getItems().filter((it) => it.getId() !== ROOT_ID),
         matched: new Set<string>(),
         ancestors: new Set<string>(),
+        descendants: new Set<string>(),
       };
     }
     const q = query.toLowerCase();
     const items = tree.getItems();
     const matched = new Set<string>();
     const ancestors = new Set<string>();
+    const descendants = new Set<string>();
 
     const getParentId = (it: any) => it.getItemMeta().parentId;
 
@@ -132,6 +134,7 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
       const name = it.getItemData()?.name?.toLowerCase() || "";
       if (name.includes(q)) {
         matched.add(it.getId());
+        // collect ancestors
         let p = getParentId(it);
         while (p && p !== ROOT_ID) {
           ancestors.add(p);
@@ -141,23 +144,45 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
       }
     });
 
-    // Build list preserving order: include item if matched or ancestor
+    // collect descendants (recursive) of each matched item
+    const collectDesc = (id: string) => {
+      const childIds = childrenMap[id] || [];
+      for (const cid of childIds) {
+        if (!descendants.has(cid)) {
+          descendants.add(cid);
+          collectDesc(cid);
+        }
+      }
+    };
+    matched.forEach((id) => collectDesc(id));
+
+    // list preserves original order; include matched + ancestors + descendants
     const list = items.filter((it) => {
       const id = it.getId();
       if (id === ROOT_ID) return false;
-      return matched.has(id) || ancestors.has(id);
+      return matched.has(id) || ancestors.has(id) || descendants.has(id);
     });
 
-    return { list, matched, ancestors };
-  }, [query, tree]);
+    return { list, matched, ancestors, descendants };
+  }, [query, tree, childrenMap]);
 
-  /* Auto expand ancestors of matches */
+  /* Auto expand ancestors + matched so descendants become visible */
   const expandedAppliedRef = useRef<string>("");
   useEffect(() => {
     if (!query.trim()) return;
-    const signature = Array.from(searchInfo.ancestors).sort().join("|");
+    const signature = [
+      ...Array.from(searchInfo.ancestors).sort(),
+      "|",
+      ...Array.from(searchInfo.matched).sort(),
+    ].join("");
     if (expandedAppliedRef.current === signature) return;
-    searchInfo.ancestors.forEach((id) => {
+
+    const toOpen = new Set<string>([
+      ...searchInfo.ancestors,
+      ...searchInfo.matched,
+    ]);
+
+    toOpen.forEach((id) => {
       try {
         const inst = tree.getItemInstance(id);
         if (!inst.isExpanded()) inst.expand();
@@ -166,7 +191,7 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
       }
     });
     expandedAppliedRef.current = signature;
-  }, [query, searchInfo.ancestors, tree]);
+  }, [query, searchInfo.ancestors, searchInfo.matched, tree]);
 
   const handleItemClick = useCallback(
     (item: any, e: React.MouseEvent) => {
