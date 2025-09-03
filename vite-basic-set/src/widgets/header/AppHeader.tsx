@@ -1,44 +1,10 @@
-import React, { useMemo, useCallback } from "react";
+import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import TopBar from "../../design-system/vercel-ui/layout/TopBar";
 import PrimaryNav, {
   type PrimaryNavItem,
 } from "../../design-system/vercel-ui/navigation/PrimaryNav";
 
-/**
- * AppHeader (FSD: widgets 레벨)
- *
- * - design-system(vercel-ui)의 TopBar + PrimaryNav 를 조합한 상단 전역 헤더
- * - 라우터(react-router-dom)와 결합하여 현재 경로 기반 활성 탭 처리
- * - 도메인/비즈니스 기능(프로젝트 전환, 사용자 메뉴, 알림 등)은
- *   추후 features/* 컴포넌트로 교체 가능한 placeholder 형태로 유지
- *
- * 책임(Scope):
- * - 전역 네비게이션 항목 정의 (간단 config)
- * - 현재 URL → active nav 매핑
- * - onSelect 시 라우터 이동
- *
- * 비책임(Out of Scope):
- * - 실제 사용자 정보/프로젝트 데이터 fetch
- * - 접근 권한별 필터링 (필요 시 shared/config/nav.ts 로 이동)
- * - 다국어 처리 (추후 i18n Provider 도입 후 label 국제화)
- *
- * 확장 아이디어:
- * - navItems 를 외부 props 로 주입하여 동적 구성
- * - role 기반 필터 혹은 실험 플래그(feature flag) 적용
- * - 우측 영역: ThemeToggle / Notifications / UserMenu 등 feature 삽입
- */
-
-/* ---------------------------------- */
-/* Nav 항목 정의 (임시, 추후 분리 가능) */
-/* ---------------------------------- */
-
-/**
- * NOTE:
- *  - path 는 react-router-dom 에서 사용하는 라우트 경로
- *  - id 는 PrimaryNavItem.id 와 1:1 매핑
- *  - requiredRole, icon 등 메타 필드가 필요해지면 확장
- */
 const NAV_ITEMS: PrimaryNavItem[] = [
   { id: "home", label: "Home" },
   { id: "about", label: "About" },
@@ -141,61 +107,49 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const activeId = activeIdOverride ?? deriveActiveId(location.pathname);
 
   /* 선택 시 라우팅 */
-  const handleSelect = useCallback(
-    (
-      item: PrimaryNavItem,
-      e: React.MouseEvent | React.KeyboardEvent,
-    ): void => {
-      const result = onItemSelect?.(item, e);
-      if (result === false) return; // 외부에서 기본 이동 차단
-      switch (item.id) {
-        case "about":
-          navigate("/about");
-          break;
-        case "home":
-        default:
-          navigate("/");
-          break;
-      }
-    },
-    [navigate, onItemSelect],
-  );
+  // 단순 로직: useCallback 불필요 (가독성 우선)
+  const handleSelect = (
+    item: PrimaryNavItem,
+    e: React.MouseEvent | React.KeyboardEvent,
+  ): void => {
+    const result = onItemSelect?.(item, e);
+    if (result === false) return; // 외부에서 기본 이동 차단
+    switch (item.id) {
+      case "about":
+        navigate("/about");
+        break;
+      case "home":
+      default:
+        navigate("/");
+        break;
+    }
+  };
 
   /* center: PrimaryNav 구성 */
-  const center = useMemo(
-    () => (
-      <PrimaryNav
-        items={navItems}
-        activeId={activeId}
-        onSelect={handleSelect}
-        variant="underline"
-        size="md"
-      />
-    ),
-    [navItems, activeId, handleSelect],
+  const center = (
+    <PrimaryNav
+      items={navItems}
+      activeId={activeId}
+      onSelect={handleSelect}
+      variant="underline"
+      size="md"
+    />
   );
 
   /* 우측 영역 (커스텀 없으면 placeholder) */
-  const right = useMemo(
-    () =>
-      rightSlot || (
-        <div className="flex items-center gap-2">
-          <ThemeTogglePlaceholder />
-          <UserMenuPlaceholder />
-        </div>
-      ),
-    [rightSlot],
+  const right = rightSlot || (
+    <div className="flex items-center gap-2">
+      <ThemeTogglePlaceholder />
+      <UserMenuPlaceholder />
+    </div>
   );
 
   /* 좌측 (로고 + 외부 slot 혼합) */
-  const left = useMemo(
-    () => (
-      <div className="flex items-center gap-3">
-        <Logo />
-        {leftSlot}
-      </div>
-    ),
-    [leftSlot],
+  const left = (
+    <div className="flex items-center gap-3">
+      <Logo />
+      {leftSlot}
+    </div>
   );
 
   return (
