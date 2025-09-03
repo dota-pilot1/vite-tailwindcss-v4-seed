@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useCallback } from "react";
 import {
   useTree,
-  type TreeInstance,
-  type ItemInstance,
+  // TreeInstance removed
+  // ItemInstance removed
 } from "@headless-tree/react";
 import {
   syncDataLoaderFeature,
@@ -46,18 +46,19 @@ export interface HeadlessTreeNavProps {
   /**
    * 항목 선택 (leaf/folder 모두)
    */
-  onSelect?(node: HeadlessTreeNode, e: React.MouseEvent | React.KeyboardEvent): void;
+  onSelect?(
+    node: HeadlessTreeNode,
+    e: React.MouseEvent | React.KeyboardEvent,
+  ): void;
   /**
    * (선택) DnD 이후 처리 (기본 dragAndDropFeature 내부 로직 확장 시)
    * position 은 단순화(inside/before/after) – 향후 실제 tree 인덱스 계산 로직 추가
    */
-  onMove?(
-    info: {
-      dragId: string;
-      targetId: string;
-      position: "before" | "after" | "inside";
-    },
-  ): void;
+  onMove?(info: {
+    dragId: string;
+    targetId: string;
+    position: "before" | "after" | "inside";
+  }): void;
 }
 
 /* ---------------------------------- */
@@ -68,9 +69,7 @@ export interface HeadlessTreeNavProps {
  * 주어진 중첩 data 를 id→node 맵 + children id 배열 구조로 변환
  * headless-tree syncDataLoaderFeature 요구 형식 대응
  */
-function buildNodeMap(
-  roots: HeadlessTreeNode[],
-): {
+function buildNodeMap(roots: HeadlessTreeNode[]): {
   map: Record<string, HeadlessTreeNode>;
   childrenMap: Record<string, string[]>;
 } {
@@ -134,13 +133,13 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
   const tree = useTree<HeadlessTreeNode>({
     rootItemId: ROOT_ID,
     getItemName: (item) =>
-      item.itemId === ROOT_ID
+      item.getId() === ROOT_ID
         ? "ROOT"
-        : (item.getItemData()?.name ?? item.itemId),
+        : (item.getItemData()?.name ?? item.getId()),
     isItemFolder: (item) =>
-      item.itemId === ROOT_ID
+      item.getId() === ROOT_ID
         ? true
-        : Boolean(item.getItemData()?.isFolder && childrenMap[item.itemId]),
+        : Boolean(item.getItemData()?.isFolder && childrenMap[item.getId()]),
     dataLoader: {
       getItem: (itemId) =>
         itemId === ROOT_ID
@@ -152,9 +151,7 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
             }
           : map[itemId],
       getChildren: (itemId) =>
-        itemId === ROOT_ID
-          ? data.map((n) => n.id)
-          : childrenMap[itemId] || [],
+        itemId === ROOT_ID ? data.map((n) => n.id) : childrenMap[itemId] || [],
     },
     features,
   });
@@ -164,15 +161,15 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
   /* ---------------------------------- */
 
   const handleItemClick = useCallback(
-    (item: ItemInstance<HeadlessTreeNode>, e: React.MouseEvent) => {
-      if (item.itemId === ROOT_ID) return;
+    (item: any, e: React.MouseEvent) => {
+      if (item.getId() === ROOT_ID) return;
       const payload = item.getItemData();
       if (!payload) return;
       onSelect?.(payload, e);
       // 폴더이면 기본: 토글
       if (payload.isFolder) {
-        if (item.isOpen()) item.close();
-        else item.open();
+        if (item.isExpanded()) item.collapse();
+        else item.expand();
       }
     },
     [onSelect],
@@ -187,7 +184,7 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
     if (!query.trim()) return flatItems;
     const q = query.toLowerCase();
     return flatItems.filter((it) => {
-      if (it.itemId === ROOT_ID) return false;
+      if (it.getId() === ROOT_ID) return false;
       const name = it.getItemData()?.name?.toLowerCase() || "";
       return name.includes(q);
     });
@@ -197,8 +194,8 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
   /* Render Helpers                     */
   /* ---------------------------------- */
 
-  function renderItem(item: ItemInstance<HeadlessTreeNode>) {
-    if (item.itemId === ROOT_ID) return null;
+  function renderItem(item: any) {
+    if (item.getId() === ROOT_ID) return null;
 
     const meta = item.getItemMeta(); // level, index 등
     const payload = item.getItemData();
@@ -208,15 +205,15 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
     const visualLevel = Math.max(0, meta.level - 1);
     const indent = visualLevel * 14;
 
-    const active = activeId === item.itemId;
+    const active = activeId === item.getId();
     const isFolder = payload.isFolder;
     const disabled = payload.disabled;
 
     return (
       <div
-        key={item.itemId}
+        key={item.getId()}
         {...item.getProps()} // 접근성/키보드 필수 props
-        data-id={item.itemId}
+        data-id={item.getId()}
         data-folder={isFolder ? "true" : "false"}
         onClick={(e) => handleItemClick(item, e)}
         className={[
@@ -234,19 +231,19 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
       >
         {/* 폴더 토글 아이콘 (간단) */}
         {isFolder && (
-            <span
-              className={[
-                "transition-transform text-[10px]",
-                item.isOpen() ? "rotate-90" : "",
-              ].join(" ")}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (item.isOpen()) item.close();
-                else item.open();
-              }}
-            >
-              ▶
-            </span>
+          <span
+            className={[
+              "transition-transform text-[10px]",
+              item.isExpanded() ? "rotate-90" : "",
+            ].join(" ")}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (item.isExpanded()) item.collapse();
+              else item.expand();
+            }}
+          >
+            ▶
+          </span>
         )}
         {!isFolder && <span className="w-3" />}
         <span className="truncate">{payload.name}</span>
@@ -294,7 +291,7 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
         style={{ height: inlineHeight }}
       >
         {(query ? filtered : flatItems)
-          .filter((it) => it.itemId !== ROOT_ID)
+          .filter((it) => it.getId() !== ROOT_ID)
           .map((it) => renderItem(it))}
       </div>
     </div>
