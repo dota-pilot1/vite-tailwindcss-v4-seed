@@ -1,22 +1,23 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 /**
- * SimpleNav (8-bit / simple-style)
+ * SimpleNav (modern minimal / simple-style)
  *
- * 초극단 미니멀 + 레트로(8bit-ish) 느낌의 상단 네비게이션.
- * - 선택(활성) 시 점선/픽셀 사각형 강조
- * - 최소한의 색상 팔레트와 '거친' 그림자(2px 오프셋) 사용
- * - router 비의존 (상위에서 activeId + onSelect 제어)
- * - 키보드 탐색 지원: ← → Home End Enter / Space
+ * 극단적 미니멀 & 모던 시크 스타일:
+ * - 필요 최소 요소, 과한 색/그림자/레트로 효과 제거
+ * - 활성 항목: 은은한 배경 + 낮은 대비 점선(dashed) 윤곽선
+ * - 비활성: 투명 → hover 시 소프트 톤 표시
+ * - router 비의존 (상위 activeId / onSelect)
+ * - 키보드: ← → Home End Enter Space
  *
  * 접근성:
- * - role="navigation" 래퍼
- * - 내부 버튼 role="tab" 과 aria-current="page" (선택 상태) 적용
+ * - role="navigation" + role="tab" 유사 패턴
+ * - aria-current="page" 로 활성 전달
  *
  * 디자인 메모:
- * - 8bit 감성: 단색 + 굵은 경계 + 저해상도 느낌(2px shadow)
- * - dotted focus/active 박스: border-dashed or outline + box-shadow 로 블록감 부여
- * - Tailwind 유틸만 활용(추가 전역 CSS 없이)
+ * - 픽셀/8bit 효과 제거 → 깔끔/여백/미세 대비 중심
+ * - dashed border 는 한 톤 낮은 gray 사용 (촌스러움 회피)
+ * - focus-visible 시 ring + dashed outline 재사용
  */
 
 function cx(...parts: (string | null | false | undefined)[]) {
@@ -34,7 +35,10 @@ export interface SimpleNavItem {
 export interface SimpleNavProps {
   items: SimpleNavItem[];
   activeId?: string;
-  onSelect?(item: SimpleNavItem, ev: React.MouseEvent | React.KeyboardEvent): void;
+  onSelect?(
+    item: SimpleNavItem,
+    ev: React.MouseEvent | React.KeyboardEvent,
+  ): void;
   className?: string;
   /**
    * 픽셀풍 강도: none (기본) | bold
@@ -71,34 +75,30 @@ function itemClasses(
   },
 ) {
   const base =
-    "relative inline-flex items-center justify-center select-none font-mono tracking-tight uppercase transition-colors outline-none";
+    "relative inline-flex items-center justify-center select-none font-medium tracking-tight transition-colors outline-none rounded-sm";
   const sizing =
     size === "sm"
-      ? "h-8 px-3 text-[10px] leading-none"
-      : "h-9 px-4 text-[11px] leading-none";
-  const paletteBase =
-    intensity === "bold"
-      ? "bg-[#f5f5f5] text-gray-800"
-      : "bg-white text-gray-700";
+      ? "h-8 px-3 text-[11px] leading-none"
+      : "h-9 px-4 text-[12px] leading-none";
+  // intensity 는 글자 대비만 약간 조정
+  const paletteBase = intensity === "bold" ? "text-gray-800" : "text-gray-600";
   const hoverable = disabled
     ? "opacity-50 cursor-not-allowed"
-    : "cursor-pointer hover:bg-yellow-50";
+    : "cursor-pointer hover:bg-gray-50 hover:text-gray-800";
   const activeStyle = active
-    ? cx(
-        "bg-yellow-200 text-gray-900",
-        // 점선 사각형 + 픽셀 그림자
-        "border-2 border-black border-dashed",
-        "shadow-[2px_2px_0_0_#000]",
-      )
-    : cx(
-        "border-2 border-transparent",
-        "shadow-[2px_2px_0_0_rgba(0,0,0,0)]",
-      );
-
+    ? cx("bg-gray-50 text-gray-900", "border border-gray-400 border-dashed")
+    : cx("border border-transparent");
   const focusVisible =
-    "focus-visible:outline-none focus-visible:border-black focus-visible:border-dashed focus-visible:shadow-[2px_2px_0_0_#000]";
-
-  return cx(base, sizing, paletteBase, hoverable, activeStyle, focusVisible);
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 focus-visible:border-gray-400 focus-visible:border-dashed";
+  return cx(
+    base,
+    sizing,
+    "bg-transparent",
+    paletteBase,
+    hoverable,
+    activeStyle,
+    focusVisible,
+  );
 }
 
 /**
@@ -186,11 +186,10 @@ export const SimpleNav: React.FC<SimpleNavProps> = ({
       role="navigation"
       aria-label={ariaLabel}
       className={cx(
-        "inline-flex",
+        "inline-flex items-center rounded-md",
         fullWidth && "w-full",
-        "bg-[#e2e2e2] p-1 border-2 border-black",
-        "shadow-[3px_3px_0_0_#000]",
-        "gap-1",
+        "bg-white/70 backdrop-blur-sm border border-gray-200",
+        "px-2 py-1 gap-1",
         className,
       )}
       data-component="SimpleNav"
@@ -201,33 +200,33 @@ export const SimpleNav: React.FC<SimpleNavProps> = ({
         const disabled = !!item.disabled;
         const focusable = idx === focusIndex && !disabled;
         return (
-            <button
-              key={item.id}
-              ref={(el) => {
-                itemRefs.current[idx] = el;
-              }}
-              type="button"
-              role="tab"
-              aria-current={active ? "page" : undefined}
-              aria-disabled={disabled || undefined}
-              tabIndex={focusable ? 0 : -1}
-              title={item.title || item.label}
-              className={itemClasses(active, disabled, { intensity, size })}
-              onClick={(e) => {
-                if (disabled) return;
-                onSelect?.(item, e);
-              }}
-              onKeyDown={(e) => handleKey(e, idx)}
-              data-active={active ? "true" : "false"}
-              data-disabled={disabled ? "true" : "false"}
-            >
-              {item.icon && (
-                <span className="mr-1 flex h-4 w-4 items-center justify-center text-[10px]">
-                  {item.icon}
-                </span>
-              )}
-              <span className="truncate">{item.label}</span>
-            </button>
+          <button
+            key={item.id}
+            ref={(el) => {
+              itemRefs.current[idx] = el;
+            }}
+            type="button"
+            role="tab"
+            aria-current={active ? "page" : undefined}
+            aria-disabled={disabled || undefined}
+            tabIndex={focusable ? 0 : -1}
+            title={item.title || item.label}
+            className={itemClasses(active, disabled, { intensity, size })}
+            onClick={(e) => {
+              if (disabled) return;
+              onSelect?.(item, e);
+            }}
+            onKeyDown={(e) => handleKey(e, idx)}
+            data-active={active ? "true" : "false"}
+            data-disabled={disabled ? "true" : "false"}
+          >
+            {item.icon && (
+              <span className="mr-1 flex h-4 w-4 items-center justify-center text-[10px]">
+                {item.icon}
+              </span>
+            )}
+            <span className="truncate">{item.label}</span>
+          </button>
         );
       })}
     </nav>
