@@ -1,32 +1,5 @@
 import React from "react";
 
-/**
- * TopBar (Design System - vercel-ui)
- *
- * 앱 전역에서 재사용 가능한 상단 바 레이아웃 컴포넌트.
- * - 도메인 / 비즈니스 로직 / 라우터 의존 없음 (슬롯 기반 구조)
- * - left / center / right 세 영역을 받아 정렬
- * - 시각 옵션(테두리, 그림자, 투명도, sticky) 토글 가능
- *
- * 사용 예:
- * <TopBar
- *   left={<Logo />}
- *   center={<PrimaryNav />}
- *   right={<UserMenu />}
- *   shadow
- *   translucent
- * />
- *
- * 접근성:
- * - role="banner" 로 문서 내 전역 헤더 랜드마크 지정
- * - 실제 내비게이션은 center 슬롯 내부에서 <nav>를 구성 (TopBar는 레이아웃만 책임)
- *
- * 확장 포인트:
- * - 반응형 숨김/노출은 외부에서 Tailwind 조건 클래스 전달
- * - 다크 모드 전환 시 색상 토큰(tw class)만 바꾸면 됨
- * - maxWidth 로 내부 컨텐츠 중앙 정렬(container 패턴) 가능
- */
-
 export interface TopBarProps {
   /** 좌측 영역 (로고, 프로젝트 선택 등) */
   left?: React.ReactNode;
