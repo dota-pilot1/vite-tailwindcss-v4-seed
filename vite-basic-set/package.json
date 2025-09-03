@@ -10,16 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headless-tree/core": "^1.4.0",
+    "@headless-tree/react": "^1.4.0",
+    "@headlessui/react": "*",
     "@tailwindcss/vite": "^4.1.12",
+    "class-variance-authority": "*",
+    "clsx": "*",
+    "lucide-react": "*",
     "react": "^19.1.1",
+    "react-arborist": "*",
     "react-dom": "^19.1.1",
     "react-router-dom": "^6.28.0",
-    "@headlessui/react": "*",
-    "react-arborist": "*",
-    "lucide-react": "*",
-    "class-variance-authority": "*",
-    "tailwind-merge": "*",
-    "clsx": "*"
+    "tailwind-merge": "*"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

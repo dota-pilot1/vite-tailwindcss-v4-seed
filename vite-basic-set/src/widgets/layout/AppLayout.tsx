@@ -1,6 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import AppHeader from "../header/AppHeader";
+import SidebarWithHeadless from "../sidebar-with-headless/SidebarWithHeadless";
 
 /**
  * AppLayout.tsx
@@ -34,7 +35,10 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="flex h-screen flex-col">
       <AppHeader />
-      <PageContainer>{children}</PageContainer>
+      <div className="flex flex-1 overflow-hidden">
+        <SidebarWithHeadless />
+        <PageContainer>{children}</PageContainer>
+      </div>
     </div>
   );
 }
