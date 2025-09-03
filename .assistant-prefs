@@ -20,9 +20,10 @@ react.memoization=minimal
 # - 사소한 렌더 최적화 목적 남발 금지
 
 [GIT_AUTOCOMMIT]
-# 4. 트리거 문구: 사용자가 이 정확한 문자열을 단독 메시지로 보내면
+# 4. 트리거 문구: 사용자가 이 정확한 문자열을 "단독 메시지" 로 보냈을 때만 자동 실행
 #    -> 변경 파일 전체 add + commit + push 수행
-#    (그 외 일반 구현 요청 시: push 자동 수행하지 않음, 필요 시 물어봄)
+#    절대! 이 트리거 없이 임의로 add/commit/push 하지 않는다 (일반 구현/수정 요청은 보고만)
+#    사용자가 명시적으로 "simple commit go"(또는 alias) 를 보내지 않으면 push 금지, commit 도 금지
 commit.trigger="simple commit go"
 # 오타/대체 트리거(선택): "simpel commit go" (사용자가 잘못 입력한 패턴)
 commit.trigger.aliases="simpel commit go"
@@ -32,7 +33,10 @@ commit.branch=main
 commit.auto_add_paths=all
 # 자동 push 기본 비활성 (트리거 외에는 push 금지)
 commit.auto_push=false
-# 트리거 시에만 push
+# 자동 commit 도 비활성 (트리거 외에는 commit 금지)
+commit.auto_commit=false
+# 트리거 시에만 commit/push 모두 허용
+commit.commit_on_trigger=true
 commit.push_on_trigger=true
 # (선택) 특정 경로만: 예) src/**,apps/web/**
 # commit.auto_add_paths=src/**
