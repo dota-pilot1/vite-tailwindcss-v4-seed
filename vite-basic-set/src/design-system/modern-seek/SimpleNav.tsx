@@ -188,7 +188,7 @@ export const SimpleNav: React.FC<SimpleNavProps> = ({
       className={cx(
         "inline-flex items-center rounded-md",
         fullWidth && "w-full",
-        "bg-white/70 backdrop-blur-sm border border-gray-200",
+        "bg-white/70 backdrop-blur-sm",
         "px-2 py-1 gap-1",
         className,
       )}
