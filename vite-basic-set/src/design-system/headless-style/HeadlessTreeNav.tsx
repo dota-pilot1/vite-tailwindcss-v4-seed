@@ -203,7 +203,8 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
 
     // 루트 바로 아래 level 이 1 이므로 시각적 들여쓰기는 (level - 1)
     const visualLevel = Math.max(0, meta.level - 1);
-    const indent = visualLevel * 14;
+    // Indentation: base 16px + 20px per visual level (더 명확한 계층 시각화)
+    const indent = 16 + visualLevel * 20;
 
     const active = activeId === item.getId();
     const isFolder = payload.isFolder;
@@ -226,7 +227,7 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
         ]
           .filter(Boolean)
           .join(" ")}
-        style={{ paddingLeft: indent + 8 }}
+        style={{ paddingLeft: indent }}
         aria-current={active ? "true" : undefined}
       >
         {/* 폴더 토글 아이콘 (간단) */}
