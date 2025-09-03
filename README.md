@@ -2,24 +2,24 @@
 
 Minimal Vite + React + TypeScript + Tailwind CSS v4 starter.
 
-## simple-style 8bit navigation
+## modern-seek minimal navigation
 
-An experimental ultra–minimal 8‑bit inspired header navigation (SimpleNav) has been added.
+A modern ultra–minimal dashed-outline navigation variant (SimpleNav) focused on subtle contrast and clean spacing.
 
 Characteristics:
-- Pixel / retro vibe using mono font, hard 2px offset shadows, dashed selection border
-- Pure Tailwind utility classes (no extra global CSS)
-- Keyboard navigation: ArrowLeft / ArrowRight / Home / End / Enter / Space
-- Accessible: role="navigation" + role="tab" semantics and aria-current="page" for the active item
-- Design tokens kept deliberately minimal (size, intensity)
+- Subtle dashed active outline (low-contrast gray)
+- Soft background highlight (bg-gray-50) only on active
+- Neutral typography (no uppercase / mono / pixel shadow)
+- Keyboard: ArrowLeft / ArrowRight / Home / End / Enter / Space
+- Accessible semantics (navigation + tab roles, aria-current)
 
-Selection effect:
-- Active item: dashed black border (2px), yellow highlight block (bg-yellow-200), pixel shadow (shadow-[2px_2px_0_0_#000])
-- Focus-visible replicates the same dashed outline to reinforce keyboard discoverability
+Selection styling:
+- Active: bg-gray-50 + dashed border (gray-400)
+- Focus-visible: same dashed border plus soft ring (ring-gray-300)
 
 Usage (auto‑wired in header):
-- The `AppHeader` now accepts `forceSimpleStyle` (default: true)
-- Set `forceSimpleStyle={false}` to fall back to the vercel-ui `PrimaryNav`
+- `AppHeader` 기본: modern-seek 스타일 (`forceSimpleStyle` = true)
+- `forceSimpleStyle={false}` 로 vercel-ui `PrimaryNav` 복귀
 
 Example override:
 ```tsx
@@ -28,8 +28,8 @@ Example override:
 ```
 
 Future ideas:
-- Add a dark palette flip (amber → lime or cyan)
-- Optional animated “marching ants” dashed border (prefers-reduced-motion aware)
-- Compact density scale + icon‑only mode
+- Dark mode tone mapping (neutral gray → subtle dark palette)
+- Optional animated dashed outline (prefers-reduced-motion aware)
+- Density scale + icon-only mode
 
 This mode is intended as a stylistic contrast / demo and can be removed or evolved into a proper theme variant later.

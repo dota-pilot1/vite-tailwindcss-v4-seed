@@ -4,7 +4,7 @@ import TopBar from "../../design-system/vercel-ui/layout/TopBar";
 import PrimaryNav, {
   type PrimaryNavItem,
 } from "../../design-system/vercel-ui/navigation/PrimaryNav";
-import SimpleNav from "../../design-system/simple-style/SimpleNav";
+import SimpleNav from "../../design-system/modern-seek/SimpleNav";
 
 const NAV_ITEMS: PrimaryNavItem[] = [
   { id: "home", label: "Home" },
@@ -92,7 +92,7 @@ export interface AppHeaderProps {
    */
   className?: string;
   /**
-   * simple-style (8bit) 강제 적용 여부
+   * modern-seek (모던 시크) 스타일 강제 적용 여부
    * true 면 SimpleNav, false 면 기존 vercel 스타일 PrimaryNav
    */
   forceSimpleStyle?: boolean;
@@ -105,7 +105,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   leftSlot,
   rightSlot,
   className,
-  forceSimpleStyle = true, // 기본: 새 simple-style 적용
+  forceSimpleStyle = true, // 기본: modern-seek 스타일 적용
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -131,7 +131,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     }
   };
 
-  /* center: simple-style (8bit) 구성 or 기존 vercel-ui 구성 */
+  /* center: modern-seek 구성 or 기존 vercel-ui 구성 */
   const center = forceSimpleStyle ? (
     <SimpleNav
       items={navItems.map((n) => ({ id: n.id, label: n.label }))}
