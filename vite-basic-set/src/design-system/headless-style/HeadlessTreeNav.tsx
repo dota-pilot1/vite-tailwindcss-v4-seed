@@ -202,9 +202,10 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
     if (!payload) return null;
 
     // 루트 바로 아래 level 이 1 이므로 시각적 들여쓰기는 (level - 1)
-    const visualLevel = Math.max(0, meta.level - 1);
-    // Indentation: base 16px + 20px per visual level (더 명확한 계층 시각화)
-    const indent = 16 + visualLevel * 20;
+    // meta.level: synthetic root = -1, 첫 실노드 = 0 → 그대로 사용
+    const visualLevel = meta.level < 0 ? 0 : meta.level;
+    // Indentation: base 12px + 18px per level (센터/그룹/팀 깊이 명확 구분)
+    const indent = 12 + visualLevel * 18;
 
     const active = activeId === item.getId();
     const isFolder = payload.isFolder;
