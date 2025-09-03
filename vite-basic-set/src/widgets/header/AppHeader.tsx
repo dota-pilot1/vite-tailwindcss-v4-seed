@@ -4,6 +4,7 @@ import TopBar from "../../design-system/vercel-ui/layout/TopBar";
 import PrimaryNav, {
   type PrimaryNavItem,
 } from "../../design-system/vercel-ui/navigation/PrimaryNav";
+import SimpleNav from "../../design-system/simple-style/SimpleNav";
 
 const NAV_ITEMS: PrimaryNavItem[] = [
   { id: "home", label: "Home" },
@@ -90,6 +91,11 @@ export interface AppHeaderProps {
    * TopBar 추가 클래스
    */
   className?: string;
+  /**
+   * simple-style (8bit) 강제 적용 여부
+   * true 면 SimpleNav, false 면 기존 vercel 스타일 PrimaryNav
+   */
+  forceSimpleStyle?: boolean;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
@@ -99,6 +105,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   leftSlot,
   rightSlot,
   className,
+  forceSimpleStyle = true, // 기본: 새 simple-style 적용
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -107,13 +114,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const activeId = activeIdOverride ?? deriveActiveId(location.pathname);
 
   /* 선택 시 라우팅 */
-  // 단순 로직: useCallback 불필요 (가독성 우선)
   const handleSelect = (
     item: PrimaryNavItem,
     e: React.MouseEvent | React.KeyboardEvent,
   ): void => {
     const result = onItemSelect?.(item, e);
-    if (result === false) return; // 외부에서 기본 이동 차단
+    if (result === false) return;
     switch (item.id) {
       case "about":
         navigate("/about");
@@ -125,8 +131,20 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     }
   };
 
-  /* center: PrimaryNav 구성 */
-  const center = (
+  /* center: simple-style (8bit) 구성 or 기존 vercel-ui 구성 */
+  const center = forceSimpleStyle ? (
+    <SimpleNav
+      items={navItems.map((n) => ({ id: n.id, label: n.label }))}
+      activeId={activeId}
+      onSelect={(it) => {
+        // SimpleNavItem -> PrimaryNavItem 호환 (id 기반)
+        const target = navItems.find((n) => n.id === it.id) || navItems[0];
+        handleSelect(target, {} as any);
+      }}
+      intensity="bold"
+      size="md"
+    />
+  ) : (
     <PrimaryNav
       items={navItems}
       activeId={activeId}
