@@ -1,9 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { HeadlessTreeNav } from "./HeadlessTreeNav";
 import DepthToolbar from "../../../shared/ui/DepthToolbar";
-import { ORG_TREE } from "../data";
-import { deriveActiveId } from "../lib";
-import { useSidebarState } from "../model";
+import { ORG_TREE } from "../data/orgTree";
+import { deriveActiveId } from "../lib/activeIdUtils";
+import { useSidebarState } from "../model/sidebarState";
 
 export interface SidebarContainerProps {
   width?: number;

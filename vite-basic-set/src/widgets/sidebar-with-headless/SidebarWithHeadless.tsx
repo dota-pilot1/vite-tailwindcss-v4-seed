@@ -1,4 +1,4 @@
-import { SidebarContainer } from "./ui";
+import { SidebarContainer } from "./ui/SidebarContainer";
 
 /**
  * SidebarWithHeadless
