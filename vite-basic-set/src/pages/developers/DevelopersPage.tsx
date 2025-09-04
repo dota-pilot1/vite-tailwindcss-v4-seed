@@ -447,10 +447,10 @@ export const DevelopersPage: React.FC = () => {
 
     const activeId = targetGroup.activePanel.id;
     const panels = targetGroup.panels.filter(
-      (p) => p.id !== activeId && p.id !== "welcome",
+      (p: any) => p.id !== activeId && p.id !== "welcome",
     );
 
-    panels.forEach((panel) => {
+    panels.forEach((panel: any) => {
       dockviewRef.current?.removePanel(panel);
     });
 
@@ -467,8 +467,8 @@ export const DevelopersPage: React.FC = () => {
     );
     if (!targetGroup) return;
 
-    const panels = targetGroup.panels.filter((p) => p.id !== "welcome");
-    panels.forEach((panel) => {
+    const panels = targetGroup.panels.filter((p: any) => p.id !== "welcome");
+    panels.forEach((panel: any) => {
       dockviewRef.current?.removePanel(panel);
     });
 
@@ -560,7 +560,7 @@ export const DevelopersPage: React.FC = () => {
         e.preventDefault();
         e.stopPropagation();
         if (group.panels.length > 0) {
-          group.panels.forEach((panel) => {
+          group.panels.forEach((panel: any) => {
             dockviewRef.current?.removePanel(panel);
           });
         }
