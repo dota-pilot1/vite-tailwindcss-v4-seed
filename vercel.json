@@ -1,0 +1,20 @@
+{
+  "builds": [
+    {
+      "src": "vite-basic-set/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "vite-basic-set/dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
