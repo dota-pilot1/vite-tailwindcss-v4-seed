@@ -9,11 +9,13 @@ import SimpleNav from "../../design-system/modern-seek/SimpleNav";
 const NAV_ITEMS: PrimaryNavItem[] = [
   { id: "home", label: "Home" },
   { id: "about", label: "About" },
+  { id: "manual", label: "Manual" },
 ];
 
 /* 경로 → 활성 nav id 매핑 유틸 (간단 규칙 기반) */
 function deriveActiveId(pathname: string): string {
   if (pathname.startsWith("/about")) return "about";
+  if (pathname.startsWith("/manual")) return "manual";
   return "home";
 }
 
@@ -123,6 +125,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     switch (item.id) {
       case "about":
         navigate("/about");
+        break;
+      case "manual":
+        navigate("/manual");
         break;
       case "home":
       default:

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AppLayout from "./widgets/layout/AppLayout";
 import HomePage from "./pages/home/HomePage";
 import AboutPage from "./pages/about/AboutPage";
+import ManualPage from "./pages/manual/ManualPage";
 
 /**
  * App.tsx
@@ -19,6 +20,7 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route index element={<HomePage />} />
           <Route path="about" element={<AboutPage />} />
+          <Route path="manual" element={<ManualPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
