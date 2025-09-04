@@ -375,6 +375,29 @@ export const DevelopersPage: React.FC = () => {
     }
   };
 
+  const closeOtherTabs = (groupId?: string) => {
+    if (!dockviewRef.current) return;
+
+    const targetGroup = groupId
+      ? dockviewRef.current.groups.find((g) => g.id === groupId)
+      : dockviewRef.current.activeGroup;
+
+    if (!targetGroup || !targetGroup.activePanel) return;
+
+    const activeId = targetGroup.activePanel.id;
+    const panels = targetGroup.panels.filter(
+      (p) => p.id !== activeId && p.id !== "welcome",
+    );
+
+    panels.forEach((panel) => {
+      dockviewRef.current?.removePanel(panel);
+    });
+
+    setTimeout(() => {
+      saveLayout();
+    }, 300);
+  };
+
   const closeGroupTabs = (groupId: string) => {
     if (!dockviewRef.current) return;
 
@@ -520,6 +543,24 @@ export const DevelopersPage: React.FC = () => {
                 <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
               </svg>
               이 그룹의 모든 탭 닫기
+            </button>
+
+            <button
+              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
+              onClick={() => {
+                closeOtherTabs(contextMenu.groupId);
+                closeContextMenu();
+              }}
+            >
+              <svg
+                width="14"
+                height="14"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+              </svg>
+              다른 탭들 닫기
             </button>
           </div>
         )}
