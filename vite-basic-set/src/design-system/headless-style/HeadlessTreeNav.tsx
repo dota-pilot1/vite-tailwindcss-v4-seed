@@ -161,43 +161,40 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
       // 1) 전체 접기
       collapseAll();
 
-      // 2) baseLevel (루트 제외 최소 level) 계산
-      let baseLevel = Infinity;
-      tree.getItems().forEach((inst: any) => {
-        try {
-          const id = inst.getId();
-          if (id === ROOT_ID) return;
-          const meta: any = inst.getItemMeta?.();
-          const lvl = meta?.level ?? 0;
-          if (lvl < baseLevel) baseLevel = lvl;
-        } catch {
-          /* ignore */
-        }
+      // 2) BFS 기반 depth 확장 (meta.level 에 의존하지 않고 실제 데이터 트리 사용)
+      // depth 기준:
+      //  - 루트 바로 아래 children 레벨 = 1
+      //  - 손자 = 2, 증손자 = 3 ...
+      //  - depth 값 이하의 폴더는 expand (자식이 보이도록 부모만 열면 됨)
+      type QueueItem = { node: HeadlessTreeNode; level: number };
+      const queue: QueueItem[] = [];
+      // 초기: 최상위 data 배열 (루트 바로 아래)
+      data.forEach((n) => {
+        if (n.isFolder) queue.push({ node: n, level: 1 });
       });
-      if (baseLevel === Infinity) baseLevel = 0;
 
-      // 3) 인스턴스 level 오름차순 정렬 후 상대 depth 기준 확장
-      const ordered = tree
-        .getItems()
-        .filter((inst: any) => inst.getId() !== ROOT_ID)
-        .map((inst: any) => {
-          const meta: any = inst.getItemMeta?.();
-          return { inst, lvl: meta?.level ?? baseLevel };
-        })
-        .sort((a: any, b: any) => a.lvl - b.lvl);
-
-      ordered.forEach(({ inst, lvl }: any) => {
-        try {
-          const relativeDepth = lvl - baseLevel + 1; // 1-based
-          if (relativeDepth <= depth) {
+      while (queue.length) {
+        const { node, level } = queue.shift()!;
+        if (level <= depth) {
+          // 해당 폴더 expand
+          try {
+            const inst = tree.getItemInstance(node.id);
             if (!inst.isExpanded?.()) inst.expand?.();
+          } catch {
+            /* ignore */
           }
-        } catch {
-          /* ignore */
         }
-      });
+        // 자식 enqueue (다음 레벨) – 현재 레벨이 depth 미만일 때만 진행
+        if (node.children && node.children.length && level < depth) {
+          node.children.forEach((child) => {
+            if (child.isFolder) {
+              queue.push({ node: child, level: level + 1 });
+            }
+          });
+        }
+      }
     },
-    [tree, collapseAll],
+    [tree, collapseAll, data],
   );
 
   // onReady 로 외부에 API 전달

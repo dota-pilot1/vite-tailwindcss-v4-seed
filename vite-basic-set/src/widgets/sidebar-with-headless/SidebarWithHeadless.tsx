@@ -185,9 +185,9 @@ export const SidebarWithHeadless: React.FC<SidebarWithHeadlessProps> = ({
     disabled,
   }: TreeToolbarProps) {
     const btnBase =
-      "rounded-md border border-gray-400 bg-white/95 hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:opacity-40 disabled:cursor-not-allowed text-[11px] px-2 py-1 leading-none text-gray-700 transition-colors";
+      "rounded-md border border-gray-500 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-[11px] px-2 py-[5px] leading-none text-gray-700 font-medium transition-colors";
     const activeCls =
-      "bg-indigo-600 text-white hover:bg-indigo-500 border-indigo-600 shadow-sm";
+      "bg-indigo-600 text-white border-indigo-600 shadow focus:ring-2 focus:ring-indigo-500 hover:bg-indigo-600";
     return (
       <div className="flex items-center gap-1">
         <button
