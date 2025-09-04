@@ -15,7 +15,7 @@ import {
 import {
   shouldSearch,
   useDebouncedValue,
-} from "../../shared/lib/search/shouldSearch";
+} from "../../../shared/lib/search/shouldSearch";
 
 /**
  * HeadlessTreeNav
