@@ -23,8 +23,64 @@ export const DevelopersPage: React.FC = () => {
     y: number;
     groupId: string;
   } | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const { developers, teams, setSelectedDeveloper, updateDeveloper } =
     useDeveloperStore();
+
+  // URL 파라미터 확인 및 전체화면 모드 설정
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const fullscreenParam = urlParams.get("fullscreen");
+    const panelParam = urlParams.get("panel");
+
+    if (fullscreenParam === "true") {
+      setIsFullscreen(true);
+      setSidebarOpen(false);
+
+      // 특정 패널이 지정된 경우 해당 패널을 열기
+      if (panelParam && dockviewRef.current) {
+        setTimeout(() => {
+          // 기존 패널들을 모두 제거하고 지정된 패널만 열기
+          const currentPanels = dockviewRef.current?.panels || [];
+          currentPanels.forEach((panel) => {
+            if (panel.id !== panelParam) {
+              dockviewRef.current?.removePanel(panel);
+            }
+          });
+
+          // 지정된 패널이 없으면 새로 생성
+          if (!currentPanels.find((p) => p.id === panelParam)) {
+            if (panelParam.startsWith("developer-")) {
+              const developerId = panelParam.replace("developer-", "");
+              const developer = developers.find((d) => d.id === developerId);
+              if (developer) {
+                openDeveloperTab(developer);
+              }
+            }
+          }
+        }, 100);
+      }
+    }
+  }, [developers]);
+
+  // ESC 키로 전체화면 모드 종료
+  useEffect(() => {
+    if (!isFullscreen) return;
+
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsFullscreen(false);
+        // URL에서 파라미터 제거
+        const url = new URL(window.location.href);
+        url.searchParams.delete("fullscreen");
+        url.searchParams.delete("panel");
+        window.history.replaceState({}, "", url.toString());
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyPress);
+    return () => document.removeEventListener("keydown", handleKeyPress);
+  }, [isFullscreen]);
 
   // localStorage 키
   const LAYOUT_STORAGE_KEY = "dockview-layout";
@@ -447,6 +503,25 @@ export const DevelopersPage: React.FC = () => {
     }, 300);
   };
 
+  // 새탭에서 전체화면으로 열기
+  const openInNewTab = (groupId: string) => {
+    const group = dockviewRef.current?.groups.find((g) => g.id === groupId);
+    if (!group || !group.activePanel) return;
+
+    const panel = group.activePanel;
+    const panelId = panel.id;
+
+    // 현재 패널의 정보를 가져와서 새탭에서 전체화면으로 열기
+    const currentUrl = window.location.origin + window.location.pathname;
+    const newTabUrl = `${currentUrl}?fullscreen=true&panel=${panelId}`;
+
+    // 새탭에서 열기
+    const newWindow = window.open(newTabUrl, "_blank");
+    if (newWindow) {
+      newWindow.focus();
+    }
+  };
+
   // 세련된 플로팅 그룹 스타일 및 헤더 액션 적용
   const enhanceFloatingGroup = (group: any) => {
     setTimeout(() => {
@@ -565,9 +640,9 @@ export const DevelopersPage: React.FC = () => {
   }, [contextMenu]);
 
   return (
-    <div className="h-screen flex">
-      {/* 사이드바 토글 버튼 */}
-      {!sidebarOpen && (
+    <div className={`h-screen ${isFullscreen ? "fullscreen-mode" : "flex"}`}>
+      {/* 사이드바 토글 버튼 - 전체화면에서는 숨김 */}
+      {!sidebarOpen && !isFullscreen && (
         <button
           onClick={toggleSidebar}
           className="fixed top-20 left-4 z-10 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 shadow-lg transition-colors"
@@ -579,8 +654,8 @@ export const DevelopersPage: React.FC = () => {
         </button>
       )}
 
-      {/* 좌측 사이드바 */}
-      {sidebarOpen && (
+      {/* 좌측 사이드바 - 전체화면에서는 숨김 */}
+      {sidebarOpen && !isFullscreen && (
         <div className="w-80 bg-gray-50 border-r border-gray-200 overflow-y-auto relative">
           {/* 사이드바 헤더 */}
           <div className="p-4 border-b border-gray-200 flex justify-between items-center">
@@ -614,8 +689,8 @@ export const DevelopersPage: React.FC = () => {
         </div>
       )}
 
-      {/* 우측 dockview 영역 */}
-      <div className="flex-1 bg-white">
+      {/* 메인 콘텐츠 영역 */}
+      <div className={`${isFullscreen ? "w-full h-full" : "flex-1"} bg-white`}>
         <DockviewReact
           onReady={onReady}
           theme={themeLight}
@@ -626,8 +701,8 @@ export const DevelopersPage: React.FC = () => {
           }}
         />
 
-        {/* 컨텍스트 메뉴 */}
-        {contextMenu && (
+        {/* 컨텍스트 메뉴 - 전체화면에서는 숨김 */}
+        {contextMenu && !isFullscreen && (
           <div
             className="fixed bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-[9999]"
             style={{
@@ -690,6 +765,24 @@ export const DevelopersPage: React.FC = () => {
                 <path d="M5,16L3,14L5,12L6.5,13.5L4.75,15.25L12.25,15.25L10.5,13.5L12,12L16,16L12,20L10.5,18.5L12.25,16.75L4.75,16.75L6.5,18.5L5,20L3,18L5,16M15,8L13,6L15,4L16.5,5.5L14.75,7.25L22.25,7.25L20.5,5.5L22,4L24,6L22,8L20.5,6.5L22.25,8.25L14.75,8.25L16.5,9.5L15,11L13,9L15,8Z" />
               </svg>
               새 창으로 분리
+            </button>
+
+            <button
+              className="w-full px-4 py-2 text-left text-sm hover:bg-green-50 hover:text-green-700 flex items-center gap-2"
+              onClick={() => {
+                openInNewTab(contextMenu.groupId);
+                closeContextMenu();
+              }}
+            >
+              <svg
+                width="14"
+                height="14"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z" />
+              </svg>
+              새탭 전체화면 열기
             </button>
           </div>
         )}
@@ -841,6 +934,43 @@ export const DevelopersPage: React.FC = () => {
             .enhanced-floating-group .dv-group-view > .dv-content {
               background: rgba(255, 255, 255, 0.98);
               backdrop-filter: blur(10px);
+            }
+
+            /* 전체화면 모드 스타일 */
+            .fullscreen-mode {
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100vw;
+              height: 100vh;
+              z-index: 9999;
+              background: white;
+              overflow: hidden;
+            }
+
+            .fullscreen-mode .dv-dockview {
+              height: 100vh !important;
+              width: 100vw !important;
+            }
+
+            /* 전체화면 모드에서 ESC 키 안내 */
+            .fullscreen-mode::before {
+              content: "ESC 키를 눌러 전체화면을 종료하세요";
+              position: fixed;
+              top: 10px;
+              right: 20px;
+              background: rgba(0, 0, 0, 0.7);
+              color: white;
+              padding: 8px 12px;
+              border-radius: 4px;
+              font-size: 12px;
+              z-index: 10000;
+              animation: fadeInOut 3s ease-in-out;
+            }
+
+            @keyframes fadeInOut {
+              0%, 100% { opacity: 0; }
+              10%, 90% { opacity: 1; }
             }
           `}
         </style>
