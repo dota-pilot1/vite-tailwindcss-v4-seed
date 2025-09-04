@@ -4,6 +4,8 @@ import {
   DockviewReact,
   type DockviewReadyEvent,
   type DockviewApi,
+  type DockviewWillDropEvent,
+  themeLight,
 } from "dockview";
 import {
   useDeveloperStore,
@@ -60,6 +62,13 @@ export const DevelopersPage: React.FC = () => {
     alert(
       `팀 선택: ${team.name}\n설명: ${team.description}\n리더: ${team.lead}`,
     );
+  };
+
+  const handleWillDrop = (event: DockviewWillDropEvent) => {
+    // 상하 분할(above, below) 방지, 좌우 분할(left, right, within)만 허용
+    if (event.position === "above" || event.position === "below") {
+      event.preventDefault();
+    }
   };
 
   // 사이드바 토글 함수
@@ -215,8 +224,9 @@ export const DevelopersPage: React.FC = () => {
       <div className="flex-1 bg-white">
         <DockviewReact
           onReady={onReady}
-          className="dockview-theme-light"
+          theme={themeLight}
           disableFloatingGroups={true}
+          onWillDrop={handleWillDrop}
           components={{
             welcomePanel: WelcomePanel,
             developerEditPanel: DeveloperEditPanel,
