@@ -12,6 +12,10 @@ language=ko
 # 2. 설명 스타일: concise → 핵심만, 필요 시 추가 설명은 요청받을 때
 explanation=concise
 
+# 3. 주석 스타일:
+주석은 한글로 달아줘 너무 장황하지 않게
+
+
 [REACT]
 # 3. 과도한 useMemo / useCallback 남발 금지: 최소화 전략
 react.memoization=minimal

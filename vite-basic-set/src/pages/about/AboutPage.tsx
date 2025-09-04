@@ -1,5 +1,3 @@
-import React from "react";
-
 /**
  * AboutPage
  *
@@ -32,9 +30,9 @@ export default function AboutPage() {
       >
         <p className="text-sm leading-relaxed text-gray-700">
           이 프로젝트는 복잡한 기능을 ‘처음부터 모두 설계’하지 않고, 필요한
-          시점에 구조를 ‘안전하게 계층화’할 수 있도록 최소한의 골격을 제공합니다.
-          즉, &quot;서둘러 거대 구조를 강요하지 않되, 확장 순간에 뒤틀리지 않는
-          뼈대&quot;를 목표로 합니다.
+          시점에 구조를 ‘안전하게 계층화’할 수 있도록 최소한의 골격을
+          제공합니다. 즉, &quot;서둘러 거대 구조를 강요하지 않되, 확장 순간에
+          뒤틀리지 않는 뼈대&quot;를 목표로 합니다.
         </p>
       </Section>
 
@@ -49,23 +47,21 @@ export default function AboutPage() {
             <b className="text-gray-800">점진적 도입(Incrementalism)</b>:
             필요하지 않은 계층/추상화는 뒤로 미룬다.
           </li>
-            <li>
-            <b className="text-gray-800">
-              기능 중심(Feature-Oriented) 분해
-            </b>
-            : 파일이 아닌 ‘역할과 책임’ 기준으로 단위화.
+          <li>
+            <b className="text-gray-800">기능 중심(Feature-Oriented) 분해</b>:
+            파일이 아닌 ‘역할과 책임’ 기준으로 단위화.
           </li>
           <li>
-            <b className="text-gray-800">도메인 독립성</b>: UI 레이어와
-            도메인 모델/로직을 분리하여 재사용성 확보.
+            <b className="text-gray-800">도메인 독립성</b>: UI 레이어와 도메인
+            모델/로직을 분리하여 재사용성 확보.
           </li>
           <li>
             <b className="text-gray-800">의도 노출</b>: “무엇”보다 “왜”를
             주석/문서로 기록.
           </li>
           <li>
-            <b className="text-gray-800">일관성 우선</b>: 완벽보다
-            예측가능성이 유지보수 비용을 낮춘다.
+            <b className="text-gray-800">일관성 우선</b>: 완벽보다 예측가능성이
+            유지보수 비용을 낮춘다.
           </li>
         </ol>
       </Section>
@@ -101,8 +97,8 @@ export default function AboutPage() {
           </li>
         </ul>
         <p className="mt-4 text-xs text-gray-500">
-          현재 단계에서는 pages / widgets / docs 정도만 존재하며, 나머지는
-          필요 시 자연스럽게 추가하는 전략을 유지한다.
+          현재 단계에서는 pages / widgets / docs 정도만 존재하며, 나머지는 필요
+          시 자연스럽게 추가하는 전략을 유지한다.
         </p>
       </Section>
 
@@ -124,18 +120,12 @@ export default function AboutPage() {
               path="src/widgets/layout"
               desc="전역 레이아웃(AppLayout) – children 주입 구조"
             />
-            <DirRow
-              path="src/pages/home"
-              desc="홈 화면 (온보딩 / 구조 안내)"
-            />
+            <DirRow path="src/pages/home" desc="홈 화면 (온보딩 / 구조 안내)" />
             <DirRow
               path="src/pages/about"
               desc="프로젝트 설계 철학 및 로드맵 문서화 컴포넌트"
             />
-            <DirRow
-              path="docs"
-              desc="설명/정책/가이드 (주석 한글화 규칙 등)"
-            />
+            <DirRow path="docs" desc="설명/정책/가이드 (주석 한글화 규칙 등)" />
             <DirRow
               path="src/lib"
               desc="경량 유틸 (cn, variants 등) – shared/ui 로 추후 이동 가능"
@@ -157,12 +147,14 @@ export default function AboutPage() {
           <li>디렉토리 계층 확장(features / entities / shared)</li>
           <li>UI 컴포넌트 토큰화(Button, Card, FormField 등 추출)</li>
           <li>
-            상태 관리 도구 도입 (Zustand / Query / jotai) – 실제 교차 상태
-            필요 확인 후
+            상태 관리 도구 도입 (Zustand / Query / jotai) – 실제 교차 상태 필요
+            확인 후
           </li>
           <li>API 계층 추상 (fetch wrapper + 에러 규격화)</li>
           <li>다국어(i18n) 구조 초기화 (언어 전환 전략 정의)</li>
-          <li>테스트 도입: unit → integration → visual (Storybook/Chromatic)</li>
+          <li>
+            테스트 도입: unit → integration → visual (Storybook/Chromatic)
+          </li>
           <li>CI 파이프라인 (lint / type / 테스트 / preview deploy)</li>
           <li>성능/접근성 지표 모니터링 (Lighthouse / Web Vitals)</li>
         </ol>
@@ -185,8 +177,8 @@ export default function AboutPage() {
             <b>Commit 단위 명확화:</b> “feat:, fix:, refactor:, docs:”
           </li>
           <li>
-            <b>불필요한 글로벌 상태 생성 금지:</b> 하향식 props → lifting →
-            필요 시 store
+            <b>불필요한 글로벌 상태 생성 금지:</b> 하향식 props → lifting → 필요
+            시 store
           </li>
           <li>
             <b>성능은 계측 후 최적화:</b> React DevTools Profiler / Web Vitals
@@ -204,7 +196,7 @@ export default function AboutPage() {
         description="프로젝트 맥락 전달/회귀 방지를 위한 최소 템플릿."
       >
         <pre className="overflow-auto rounded-md border bg-gray-50 p-4 text-[11px] leading-relaxed text-gray-700">
-{`# Decision: 라우터로 React Router 채택
+          {`# Decision: 라우터로 React Router 채택
 - Date: 2025-01-05
 - Context: 동적 세그먼트 + 중첩 레이아웃 필요
 - Options:
@@ -219,17 +211,13 @@ export default function AboutPage() {
 `}
         </pre>
         <p className="mt-3 text-xs text-gray-500">
-          작은 결정도 누적되면 복잡도를 가중하므로 &quot;로그
-          습관화&quot;가 비용을 낮춘다.
+          작은 결정도 누적되면 복잡도를 가중하므로 &quot;로그 습관화&quot;가
+          비용을 낮춘다.
         </p>
       </Section>
 
       {/* 8. 참고 */}
-      <Section
-        id="refs"
-        title="참고 / 표준"
-        description="문서 및 표준 위치."
-      >
+      <Section id="refs" title="참고 / 표준" description="문서 및 표준 위치.">
         <ul className="list-disc space-y-1 pl-5 text-sm text-gray-700">
           <li>
             주석 한글화 가이드:{" "}
@@ -283,9 +271,7 @@ function Section({
         >
           {title}
         </h2>
-        {description && (
-          <p className="text-sm text-gray-500">{description}</p>
-        )}
+        {description && <p className="text-sm text-gray-500">{description}</p>}
       </header>
       <div className="text-sm">{children}</div>
     </section>

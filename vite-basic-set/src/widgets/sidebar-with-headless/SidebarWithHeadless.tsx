@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import HeadlessTreeNav, {
   type HeadlessTreeNode,
@@ -168,7 +168,7 @@ export const SidebarWithHeadless: React.FC<SidebarWithHeadlessProps> = ({
         height="calc(100vh - 60px)"
         onSelect={(node) => {
           // 라우트 있는 항목이면 이동
-            // @ts-expect-error(meta 자유 필드)
+          // @ts-expect-error(meta 자유 필드)
           if (node.meta?.route) {
             // @ts-expect-error(meta 자유 필드)
             navigate(node.meta.route);

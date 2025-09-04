@@ -11,6 +11,10 @@ import {
   dragAndDropFeature,
   hotkeysCoreFeature,
 } from "@headless-tree/core";
+import {
+  shouldSearch,
+  useDebouncedValue,
+} from "../../shared/lib/search/shouldSearch";
 
 /**
  * HeadlessTreeNav
@@ -78,6 +82,9 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
   onSelect,
 }) => {
   const [query, setQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(query, 150);
+  const gate = shouldSearch(debouncedQuery);
+  const effectiveQuery = gate.allow ? debouncedQuery : "";
   const ROOT_ID = "__root__";
   const { map, childrenMap } = useMemo(() => buildNodeMap(data), [data]);
 
@@ -154,7 +161,7 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
   }, [data, tree, expansionSig]);
 
   const searchInfo = useMemo(() => {
-    if (!query.trim()) {
+    if (!effectiveQuery.trim()) {
       return {
         listIds: visibleItems
           .map((i) => i.getId())
@@ -163,8 +170,7 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
         ancestors: new Set<string>(),
       };
     }
-
-    const q = query.toLowerCase();
+    const q = effectiveQuery.toLowerCase();
     const matched = new Set<string>();
     const ancestors = new Set<string>();
     const parentOf: Record<string, string | undefined> = {};
@@ -218,22 +224,31 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
     walk(data);
 
     return { listIds, matched, ancestors };
-  }, [query, data, map, childrenMap, visibleItems, expandedVisibleIds]);
+  }, [
+    effectiveQuery,
+    data,
+    map,
+    childrenMap,
+    visibleItems,
+    expandedVisibleIds,
+  ]);
 
   /* Auto expand only ancestors so matched nodes are reachable; matched remain collapsed unless user opens */
   const expandedAppliedRef = useRef<string>("");
   useEffect(() => {
-    if (!query.trim()) return;
+    if (!effectiveQuery.trim()) return;
     const signature = Array.from(searchInfo.ancestors).sort().join("|");
     if (expandedAppliedRef.current === signature) return;
     searchInfo.ancestors.forEach((id) => {
       try {
         const inst = tree.getItemInstance(id);
         if (!inst.isExpanded()) inst.expand();
-      } catch {}
+      } catch {
+        /* ignore */
+      }
     });
     expandedAppliedRef.current = signature;
-  }, [query, searchInfo.ancestors, tree]);
+  }, [effectiveQuery, searchInfo.ancestors, tree]);
 
   const handleItemClick = useCallback(
     (item: any, e: React.MouseEvent) => {
@@ -242,7 +257,11 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
       if (!payload) return;
       onSelect?.(payload, e);
       if (payload.isFolder) {
-        item.isExpanded() ? item.collapse() : item.expand();
+        if (item.isExpanded()) {
+          item.collapse();
+        } else {
+          item.expand();
+        }
       }
     },
     [onSelect],
@@ -251,9 +270,9 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
   /* Highlight helper */
   const highlight = useCallback(
     (label: string) => {
-      if (!query.trim()) return label;
+      if (!effectiveQuery.trim()) return label;
       const lower = label.toLowerCase();
-      const q = query.toLowerCase();
+      const q = effectiveQuery.toLowerCase();
       const idx = lower.indexOf(q);
       if (idx === -1) return label;
       return (
@@ -266,7 +285,7 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
         </>
       );
     },
-    [query],
+    [query, effectiveQuery],
   );
 
   function renderItem(item: any) {
@@ -311,7 +330,11 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
             ].join(" ")}
             onClick={(e) => {
               e.stopPropagation();
-              item.isExpanded() ? item.collapse() : item.expand();
+              if (item.isExpanded()) {
+                item.collapse();
+              } else {
+                item.expand();
+              }
             }}
           >
             ▶
@@ -326,7 +349,7 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
   const inlineHeight =
     typeof height === "number" ? `${height}px` : height || "400px";
 
-  const itemsToRender = query.trim()
+  const itemsToRender = effectiveQuery.trim()
     ? searchInfo.listIds.map((id) => tree.getItemInstance(id))
     : tree.getItems().filter((it) => it.getId() !== ROOT_ID);
 
@@ -343,6 +366,11 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
             onChange={(e) => setQuery(e.target.value)}
             className="w-full rounded border border-gray-200 bg-white px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-gray-300"
           />
+          {!gate.allow && debouncedQuery.trim() !== "" && (
+            <div className="mt-1 text-[11px] leading-snug text-gray-500">
+              {gate.reason}
+            </div>
+          )}
         </div>
       )}
 

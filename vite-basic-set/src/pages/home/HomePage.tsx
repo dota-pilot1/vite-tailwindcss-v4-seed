@@ -1,5 +1,3 @@
-import React from "react";
-
 /**
  * HomePage
  *
@@ -28,9 +26,9 @@ export default function HomePage() {
           Super UI 시작 화면
         </h1>
         <p className="text-sm leading-relaxed text-gray-600">
-          이 프로젝트는 확장성과 유지보수성을 고려한 구조(FSD 방향성)를 점진적으로
-          도입하기 위한 베이스 코드입니다. 복잡한 의존성을 서둘러 추가하지 않고
-          “필요할 때 확장”하는 전략을 따릅니다.
+          이 프로젝트는 확장성과 유지보수성을 고려한 구조(FSD 방향성)를
+          점진적으로 도입하기 위한 베이스 코드입니다. 복잡한 의존성을 서둘러
+          추가하지 않고 “필요할 때 확장”하는 전략을 따릅니다.
         </p>
       </section>
 
@@ -46,9 +44,7 @@ export default function HomePage() {
           현재 포함된 구조
         </h2>
         <ul className="list-disc space-y-1 pl-5 text-sm text-gray-700">
-          <li>
-            widgets/layout: 전역 레이아웃(AppLayout) – children 주입 방식
-          </li>
+          <li>widgets/layout: 전역 레이아웃(AppLayout) – children 주입 방식</li>
           <li>pages/home, pages/about: 페이지 단위 컴포넌트 분리</li>
           <li>
             docs/COMMENT_GUIDELINES_KO.md: 주석/문서 한글화 가이드 (팀 규칙)
@@ -77,10 +73,8 @@ export default function HomePage() {
             : 복잡한 아키텍처(모듈 구조, 전역 상태, 다국어 등)는 “필요 시” 추가
           </li>
           <li>
-            <span className="font-medium text-gray-800">
-              명확한 책임 분리
-            </span>
-            : Layout 은 프레임, Page 는 컨텐츠, Feature 는 행동 단위
+            <span className="font-medium text-gray-800">명확한 책임 분리</span>:
+            Layout 은 프레임, Page 는 컨텐츠, Feature 는 행동 단위
           </li>
           <li>
             <span className="font-medium text-gray-800">
@@ -89,10 +83,8 @@ export default function HomePage() {
             : UI 레이어와 로직/모델 분리를 위한 사전 토대
           </li>
           <li>
-            <span className="font-medium text-gray-800">
-              주석/문서 표준화
-            </span>
-            : 유지보수·온보딩 속도 향상 (한글 주석 컨벤션)
+            <span className="font-medium text-gray-800">주석/문서 표준화</span>:
+            유지보수·온보딩 속도 향상 (한글 주석 컨벤션)
           </li>
         </ol>
       </section>
@@ -104,7 +96,7 @@ export default function HomePage() {
       >
         <h2
           id="home-next-title"
-            className="text-lg font-semibold text-indigo-700"
+          className="text-lg font-semibold text-indigo-700"
         >
           추천 다음 단계
         </h2>
@@ -118,9 +110,7 @@ export default function HomePage() {
         </ul>
         <p className="text-[13px] text-indigo-600">
           “지금 반드시 필요하지 않은 것”은 과감히 미루되,
-          <span className="font-medium">
-            &nbsp;미룬 이유와 기준은 문서화
-          </span>
+          <span className="font-medium">&nbsp;미룬 이유와 기준은 문서화</span>
           한다.
         </p>
       </section>
@@ -128,8 +118,8 @@ export default function HomePage() {
       {/* 푸터 / 안내 */}
       <footer className="border-t pt-4">
         <p className="text-xs text-gray-500">
-          이 화면은 향후 대시보드 / 온보딩 / 공지 영역 등으로 대체 가능. 레이아웃
-          구조를 깨지 않는 선에서 자유롭게 확장.
+          이 화면은 향후 대시보드 / 온보딩 / 공지 영역 등으로 대체 가능.
+          레이아웃 구조를 깨지 않는 선에서 자유롭게 확장.
         </p>
       </footer>
     </div>

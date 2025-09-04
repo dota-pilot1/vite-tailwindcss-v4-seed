@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 
 export interface TopBarProps {
   /** 좌측 영역 (로고, 프로젝트 선택 등) */

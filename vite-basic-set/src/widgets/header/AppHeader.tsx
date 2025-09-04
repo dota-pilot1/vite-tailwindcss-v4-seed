@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import TopBar from "../../design-system/vercel-ui/layout/TopBar";
 import PrimaryNav, {
@@ -76,7 +76,7 @@ export interface AppHeaderProps {
    */
   onItemSelect?(
     item: PrimaryNavItem,
-    event: React.MouseEvent | React.KeyboardEvent,
+    event?: React.MouseEvent | React.KeyboardEvent,
   ): boolean | void;
   /**
    * 헤더 좌측 로고/프로젝트 스위처 자리에 커스텀 요소 삽입
@@ -116,7 +116,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   /* 선택 시 라우팅 */
   const handleSelect = (
     item: PrimaryNavItem,
-    e: React.MouseEvent | React.KeyboardEvent,
+    e?: React.MouseEvent | React.KeyboardEvent,
   ): void => {
     const result = onItemSelect?.(item, e);
     if (result === false) return;
@@ -139,7 +139,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       onSelect={(it) => {
         // SimpleNavItem -> PrimaryNavItem 호환 (id 기반)
         const target = navItems.find((n) => n.id === it.id) || navItems[0];
-        handleSelect(target, {} as any);
+        handleSelect(target);
       }}
       intensity="bold"
       size="md"
