@@ -7,20 +7,21 @@ import PrimaryNav, {
 import SimpleNav from "../../design-system/modern-seek/SimpleNav";
 
 const NAV_ITEMS: PrimaryNavItem[] = [
+  { id: "developers", label: "개발자 관리" },
   { id: "home", label: "Home" },
   { id: "about", label: "About" },
   { id: "manual", label: "Manual" },
   { id: "todo", label: "Todo" },
-  { id: "developers", label: "개발자 관리" },
 ];
 
 /* 경로 → 활성 nav id 매핑 유틸 (간단 규칙 기반) */
 function deriveActiveId(pathname: string): string {
+  if (pathname.startsWith("/developers")) return "developers";
   if (pathname.startsWith("/about")) return "about";
   if (pathname.startsWith("/manual")) return "manual";
   if (pathname.startsWith("/todo")) return "todo";
-  if (pathname.startsWith("/developers")) return "developers";
-  return "home";
+  if (pathname.startsWith("/home")) return "home";
+  return "developers"; // 기본값을 개발자 관리로 변경
 }
 
 /* ---------------------------------- */
@@ -127,6 +128,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     const result = onItemSelect?.(item, e);
     if (result === false) return;
     switch (item.id) {
+      case "developers":
+        navigate("/developers");
+        break;
       case "about":
         navigate("/about");
         break;
@@ -136,12 +140,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       case "todo":
         navigate("/todo");
         break;
-      case "developers":
-        navigate("/developers");
-        break;
       case "home":
-      default:
         navigate("/");
+        break;
+      default:
+        navigate("/developers"); // 기본값을 개발자 관리로 변경
         break;
     }
   };

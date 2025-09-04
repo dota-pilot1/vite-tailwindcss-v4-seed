@@ -20,7 +20,8 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route element={<AppLayout />}>
-          <Route index element={<HomePage />} />
+          <Route index element={<DevelopersPage />} />
+          <Route path="home" element={<HomePage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="manual" element={<ManualPage />} />
           <Route path="todo" element={<TodoPage />} />
