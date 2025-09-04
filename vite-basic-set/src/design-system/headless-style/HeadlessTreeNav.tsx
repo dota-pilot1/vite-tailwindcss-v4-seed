@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useRef,
 } from "react";
+
 import { useTree } from "@headless-tree/react";
 import {
   syncDataLoaderFeature,
@@ -131,9 +132,11 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
      Programmatic Control API
      - collapseAll: root 제외 전체 접기
      - expandToDepth(d):
-         * 모든 폴더 우선 접은 뒤
-         * meta.level < d 인 노드 expand (root 자식 level=0 가정)
-         * d=1 => 1단(루트 직속), d=2 => 2단, ...
+         * 모든 폴더 우선 접기
+         * 트리 내 실제 최소 level(루트 제외)을 baseLevel 로 계산
+         * 상대레벨 rel = (nodeLevel - baseLevel) + 1
+         * rel <= d 인 폴더를 level 오름차순으로 확장 (부모 먼저 → 자식)
+         * d=1 => 루트 자식만, d=2 => 손자까지, d=3 => 증손자까지 ...
      ----------------------------------------------------------- */
   const collapseAll = useCallback(() => {
     tree.getItems().forEach((inst: any) => {
@@ -154,16 +157,39 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
         collapseAll();
         return;
       }
-      // 1) 모든 폴더 접기
+
+      // 1) 전체 접기
       collapseAll();
-      // 2) depth 까지 펼치기 (meta.level 은 루트 child 가 0 이라고 가정)
+
+      // 2) baseLevel (루트 제외 최소 level) 계산
+      let baseLevel = Infinity;
       tree.getItems().forEach((inst: any) => {
         try {
           const id = inst.getId();
           if (id === ROOT_ID) return;
           const meta: any = inst.getItemMeta?.();
           const lvl = meta?.level ?? 0;
-          if (lvl < depth) {
+          if (lvl < baseLevel) baseLevel = lvl;
+        } catch {
+          /* ignore */
+        }
+      });
+      if (baseLevel === Infinity) baseLevel = 0;
+
+      // 3) 인스턴스 level 오름차순 정렬 후 상대 depth 기준 확장
+      const ordered = tree
+        .getItems()
+        .filter((inst: any) => inst.getId() !== ROOT_ID)
+        .map((inst: any) => {
+          const meta: any = inst.getItemMeta?.();
+          return { inst, lvl: meta?.level ?? baseLevel };
+        })
+        .sort((a: any, b: any) => a.lvl - b.lvl);
+
+      ordered.forEach(({ inst, lvl }: any) => {
+        try {
+          const relativeDepth = lvl - baseLevel + 1; // 1-based
+          if (relativeDepth <= depth) {
             if (!inst.isExpanded?.()) inst.expand?.();
           }
         } catch {
