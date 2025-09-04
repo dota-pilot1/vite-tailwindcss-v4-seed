@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { HeadlessTreeNav } from "./HeadlessTreeNav";
+import { SidebarHeader } from "./SidebarHeader";
+import { CollapsedSidebar } from "./CollapsedSidebar";
 import DepthToolbar from "../../../shared/ui/DepthToolbar";
 import { ORG_TREE } from "../data/orgTree";
 import { deriveActiveId } from "../lib/activeIdUtils";
@@ -24,6 +27,7 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const activeId = deriveActiveId(ORG_TREE, location.pathname);
   const { selectedDepth, apiRef, collapseAll, expandDepth } = useSidebarState();
@@ -31,44 +35,46 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
   return (
     <aside
       className={[
-        "flex shrink-0 flex-col border-r border-gray-200 bg-white/70 backdrop-blur-sm",
+        "flex shrink-0 flex-col border-r border-gray-200 bg-white/70 backdrop-blur-sm transition-all duration-300",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
-      style={{ width }}
+      style={{ width: isCollapsed ? 48 : width }}
       data-widget="SidebarWithHeadless"
     >
-      <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
-        <span className="text-xs font-semibold tracking-wide text-gray-500">
-          ORG / MENU
-        </span>
-        <DepthToolbar
-          onCollapseAll={collapseAll}
-          onExpandDepth={expandDepth}
-          currentDepth={selectedDepth}
-          maxDepth={3}
-        />
-      </div>
-      <HeadlessTreeNav
-        data={ORG_TREE}
-        activeId={activeId}
-        enableDnd={enableDnd}
-        enableHotkeys
-        searchable
-        height="calc(100vh - 60px)"
-        onReady={(api) => {
-          apiRef.current = api;
-        }}
-        onSelect={(node) => {
-          // 라우트 있는 항목이면 이동
-          // @ts-expect-error(meta 자유 필드)
-          if (node.meta?.route) {
-            // @ts-expect-error(meta 자유 필드)
-            navigate(node.meta.route);
-          }
-        }}
+      <SidebarHeader
+        isCollapsed={isCollapsed}
+        onToggle={() => setIsCollapsed(!isCollapsed)}
+        selectedDepth={selectedDepth}
+        onCollapseAll={collapseAll}
+        onExpandDepth={expandDepth}
+        maxDepth={3}
       />
+
+      {isCollapsed ? (
+        <CollapsedSidebar onExpand={() => setIsCollapsed(false)} />
+      ) : (
+        <HeadlessTreeNav
+          data={ORG_TREE}
+          activeId={activeId}
+          enableDnd={enableDnd}
+          enableHotkeys
+          searchable
+          height="calc(100vh - 60px)"
+          onReady={(api) => {
+            apiRef.current = api;
+          }}
+          onSelect={(node) => {
+            // 라우트 있는 항목이면 이동
+            // @ts-expect-error(meta 자유 필드)
+            if (node.meta?.route) {
+              // @ts-expect-error(meta 자유 필드)
+              navigate(node.meta.route);
+            }
+          }}
+        />
+      )}
     </aside>
   );
 };
