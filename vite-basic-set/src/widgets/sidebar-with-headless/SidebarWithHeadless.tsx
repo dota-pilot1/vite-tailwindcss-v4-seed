@@ -1,4 +1,4 @@
-import type React from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import HeadlessTreeNav, {
   type HeadlessTreeNode,
@@ -144,6 +144,70 @@ export const SidebarWithHeadless: React.FC<SidebarWithHeadlessProps> = ({
   const navigate = useNavigate();
 
   const activeId = deriveActiveId(ORG_TREE, location.pathname);
+  const [treeKey, setTreeKey] = useState(0);
+
+  // Toolbar action handlers (currently stubbed: HeadlessTreeNav does not expose programmatic expand API yet)
+  const collapseAll = () => {
+    // Re-mount tree to simulate full collapse; proper implementation would iterate instances and call collapse()
+    setTreeKey((k) => k + 1);
+    // TODO: integrate with HeadlessTreeNav internal API for precise collapse
+  };
+
+  const expandDepth = (depth: number) => {
+    console.warn("[TreeToolbar] expandDepth stub depth=", depth);
+    // TODO: implement programmatic expand to a certain depth inside HeadlessTreeNav
+  };
+
+  /**
+   * TreeToolbar
+   * - 별도 컴포넌트로 분리하여 손쉽게 기능 on/off 가능
+   * - 버튼 구성:
+   *   [↺] 전체 닫기 (collapse all)
+   *   [1][2][3] 깊이별 펼치기 요청
+   *
+   * 실제 depth 기반 펼치기는 HeadlessTreeNav 내부 expand API 연동 필요 (TODO)
+   */
+  interface TreeToolbarProps {
+    onCollapseAll: () => void;
+    onExpandDepth: (depth: number) => void;
+    disabled?: boolean;
+  }
+
+  function TreeToolbar({
+    onCollapseAll,
+    onExpandDepth,
+    disabled,
+  }: TreeToolbarProps) {
+    const btnBase =
+      "rounded border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed text-[10px] px-2 py-1 leading-none text-gray-600";
+    return (
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          className={btnBase}
+          onClick={onCollapseAll}
+          disabled={disabled}
+          title="전체 닫기"
+          aria-label="전체 닫기"
+        >
+          ↺
+        </button>
+        {[1, 2, 3].map((d) => (
+          <button
+            key={d}
+            type="button"
+            className={btnBase}
+            onClick={() => onExpandDepth(d)}
+            disabled={disabled}
+            title={`깊이 ${d}까지 펼치기`}
+            aria-label={`깊이 ${d}까지 펼치기`}
+          >
+            {d}
+          </button>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <aside
@@ -156,10 +220,18 @@ export const SidebarWithHeadless: React.FC<SidebarWithHeadlessProps> = ({
       style={{ width }}
       data-widget="SidebarWithHeadless"
     >
-      <div className="px-3 py-2 text-xs font-semibold tracking-wide text-gray-500">
-        ORG / MENU
+      <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
+        <span className="text-xs font-semibold tracking-wide text-gray-500">
+          ORG / MENU
+        </span>
+        <TreeToolbar
+          onCollapseAll={collapseAll}
+          onExpandDepth={expandDepth}
+          disabled={false}
+        />
       </div>
       <HeadlessTreeNav
+        key={treeKey}
         data={ORG_TREE}
         activeId={activeId}
         enableDnd={enableDnd}
