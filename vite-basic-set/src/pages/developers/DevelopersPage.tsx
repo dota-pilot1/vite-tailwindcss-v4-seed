@@ -1,5 +1,5 @@
 import type React from "react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   DockviewReact,
   type DockviewReadyEvent,
@@ -21,16 +21,153 @@ export const DevelopersPage: React.FC = () => {
   const { developers, teams, setSelectedDeveloper, updateDeveloper } =
     useDeveloperStore();
 
+  // localStorage 키
+  const LAYOUT_STORAGE_KEY = "dockview-layout";
+
+  // 레이아웃 저장
+  const saveLayout = () => {
+    if (!dockviewRef.current) {
+      console.log("No dockview API available for saving");
+      return;
+    }
+
+    try {
+      const layout = dockviewRef.current.toJSON();
+      console.log("Saving layout:", layout);
+
+      // 유효한 레이아웃이면 저장
+      if (layout) {
+        localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(layout));
+        console.log("Layout saved to localStorage");
+      } else {
+        console.log("Invalid layout, not saving");
+      }
+    } catch (error) {
+      console.error("Failed to save layout:", error);
+    }
+  };
+
+  // 레이아웃 복원
+  const loadLayout = () => {
+    try {
+      const savedLayout = localStorage.getItem(LAYOUT_STORAGE_KEY);
+      console.log("Loaded from localStorage:", savedLayout);
+      if (savedLayout) {
+        const layout = JSON.parse(savedLayout);
+        console.log("Parsed layout:", layout);
+        return layout;
+      }
+    } catch (error) {
+      console.error("Failed to load layout:", error);
+    }
+    console.log("No saved layout found");
+    return null;
+  };
+
+  // 복원된 탭들의 유효성 검사
+  const validateRestoredTabs = () => {
+    if (!dockviewRef.current) return;
+
+    const panels = dockviewRef.current.panels;
+    panels.forEach((panel) => {
+      const panelId = panel.id;
+      if (panelId.startsWith("developer-")) {
+        const developerId = panelId.replace("developer-", "");
+        const developer = developers.find((d) => d.id === developerId);
+
+        if (!developer) {
+          // 개발자가 존재하지 않으면 탭 제거
+          dockviewRef.current?.removePanel(panel);
+        } else {
+          // 개발자 이름이 변경되었을 수 있으므로 탭 제목 업데이트
+          panel.api.setTitle(`${developer.name} 수정`);
+        }
+      }
+    });
+  };
+
   const onReady = (event: DockviewReadyEvent) => {
     dockviewRef.current = event.api;
 
-    // 환영 화면을 기본 패널로 추가
-    event.api.addPanel({
-      id: "welcome",
-      component: "welcomePanel",
-      title: "개발자 관리",
+    // 레이아웃 변경시 자동 저장 (디바운싱)
+    let saveTimeout: NodeJS.Timeout;
+    event.api.onDidLayoutChange(() => {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        saveLayout();
+      }, 300);
     });
+
+    // 개발자 데이터가 로딩될 때까지 대기 후 레이아웃 복원
+    const restoreLayout = () => {
+      if (developers.length === 0) {
+        // 개발자 데이터가 아직 로딩되지 않았으면 잠시 후 재시도
+        setTimeout(restoreLayout, 100);
+        return;
+      }
+
+      // 저장된 레이아웃 복원 시도
+      const savedLayout = loadLayout();
+
+      if (savedLayout) {
+        try {
+          console.log("Attempting to restore layout...");
+          event.api.fromJSON(savedLayout);
+          console.log("Layout restored successfully");
+          // 복원된 개발자 탭들의 유효성 검사
+          setTimeout(() => {
+            validateRestoredTabs();
+          }, 200);
+        } catch (error) {
+          console.error("Failed to restore layout:", error);
+          // 복원 실패시 기본 환영 화면 추가
+          event.api.addPanel({
+            id: "welcome",
+            component: "welcomePanel",
+            title: "개발자 관리",
+          });
+        }
+      } else {
+        // 저장된 레이아웃이 없으면 기본 환영 화면 추가
+        console.log("No saved layout, adding welcome panel");
+        event.api.addPanel({
+          id: "welcome",
+          component: "welcomePanel",
+          title: "개발자 관리",
+        });
+      }
+    };
+
+    // 레이아웃 복원 시작
+    restoreLayout();
   };
+
+  // 컴포넌트 언마운트 시 레이아웃 저장
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      saveLayout();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        saveLayout();
+      }
+    };
+
+    // 페이지 언로드 전 레이아웃 저장
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    // 페이지 숨김 시 레이아웃 저장
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      // 컴포넌트 언마운트 시 레이아웃 저장
+      saveLayout();
+
+      // 이벤트 리스너 제거
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
 
   const addDeveloperTab = (developer: Developer) => {
     if (!dockviewRef.current) return;
@@ -49,8 +186,15 @@ export const DevelopersPage: React.FC = () => {
       id: tabId,
       component: "developerEditPanel",
       title: `${developer.name} 수정`,
-      params: { developer },
+      params: {
+        developerId: developer.id,
+      },
     });
+
+    // 탭 추가 후 레이아웃 저장
+    setTimeout(() => {
+      saveLayout();
+    }, 300);
   };
 
   const handleDeveloperDoubleClick = (developer: Developer) => {
@@ -127,14 +271,16 @@ export const DevelopersPage: React.FC = () => {
   };
 
   // 개발자 수정 폼 패널
-  const DeveloperEditPanel: React.FC<{ params?: { developer: Developer } }> = ({
+  const DeveloperEditPanel: React.FC<{ params?: { developerId: string } }> = ({
     params,
   }) => {
-    if (!params?.developer) {
+    const developer = params?.developerId
+      ? developers.find((d) => d.id === params.developerId)
+      : null;
+
+    if (!developer) {
       return <div className="p-4">개발자 정보를 로드할 수 없습니다.</div>;
     }
-
-    const { developer } = params;
 
     const handleSave = (updates: Partial<Developer>) => {
       updateDeveloper(developer.id, updates);
@@ -147,6 +293,11 @@ export const DevelopersPage: React.FC = () => {
           panel.api.setTitle(`${updates.name} 수정`);
         }
       }
+
+      // 변경사항 저장 후 레이아웃 저장
+      setTimeout(() => {
+        saveLayout();
+      }, 300);
     };
 
     const handleCancel = () => {
@@ -156,6 +307,10 @@ export const DevelopersPage: React.FC = () => {
       const panel = dockviewRef.current.getPanel(tabId);
       if (panel) {
         dockviewRef.current.removePanel(panel);
+        // 탭 제거 후 레이아웃 저장
+        setTimeout(() => {
+          saveLayout();
+        }, 300);
       }
     };
 
