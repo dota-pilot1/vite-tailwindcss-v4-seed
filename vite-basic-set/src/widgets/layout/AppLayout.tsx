@@ -1,7 +1,7 @@
 import type React from "react";
 import { Outlet } from "react-router-dom";
 import AppHeader from "../header/AppHeader";
-import SidebarWithHeadless from "../sidebar-with-headless/SidebarWithHeadless";
+import { SidebarWithHeadless } from "../sidebar-with-headless";
 
 /**
  * AppLayout.tsx
