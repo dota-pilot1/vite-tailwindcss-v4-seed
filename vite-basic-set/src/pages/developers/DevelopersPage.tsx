@@ -1,4 +1,4 @@
-import type React from "react";
+import React from "react";
 import { useRef, useState, useEffect } from "react";
 import {
   DockviewReact,
@@ -18,6 +18,11 @@ import DeveloperEditForm from "./components/DeveloperEditForm";
 export const DevelopersPage: React.FC = () => {
   const dockviewRef = useRef<DockviewApi | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true); // 기본값: 열린 상태
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    groupId: string;
+  } | null>(null);
   const { developers, teams, setSelectedDeveloper, updateDeveloper } =
     useDeveloperStore();
 
@@ -90,7 +95,7 @@ export const DevelopersPage: React.FC = () => {
     dockviewRef.current = event.api;
 
     // 레이아웃 변경시 자동 저장 (디바운싱)
-    let saveTimeout: NodeJS.Timeout;
+    let saveTimeout: number;
     event.api.onDidLayoutChange(() => {
       clearTimeout(saveTimeout);
       saveTimeout = setTimeout(() => {
@@ -98,10 +103,18 @@ export const DevelopersPage: React.FC = () => {
       }, 300);
     });
 
-    // 그룹 추가시 기본 이벤트만 등록
+    // 그룹 추가시 컨텍스트 메뉴 이벤트 등록
     event.api.onDidAddGroup((group) => {
       console.log("Group added:", group);
+      addContextMenuToGroup(group);
     });
+
+    // 기존 그룹들에 컨텍스트 메뉴 추가
+    setTimeout(() => {
+      event.api.groups.forEach((group) => {
+        addContextMenuToGroup(group);
+      });
+    }, 500);
 
     // 개발자 데이터가 로딩될 때까지 대기 후 레이아웃 복원
     const restoreLayout = () => {
@@ -143,8 +156,29 @@ export const DevelopersPage: React.FC = () => {
       }
     };
 
+    // 키보드 단축키 등록 (필수 기능만)
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!dockviewRef.current) return;
+
+      // Ctrl+W: 현재 활성 탭 닫기
+      if (e.ctrlKey && !e.shiftKey && e.key === "w") {
+        e.preventDefault();
+        closeActiveTab();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    // 컴포넌트 언마운트 시 이벤트 제거
+    const cleanup = () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+
     // 레이아웃 복원 시작
     restoreLayout();
+
+    // cleanup 함수 반환
+    return cleanup;
   };
 
   // 컴포넌트 언마운트 시 레이아웃 저장
@@ -328,7 +362,75 @@ export const DevelopersPage: React.FC = () => {
     );
   };
 
-  // 휴지통 버튼 제거됨 - 드래그 앤 드롭 방해 방지
+  // 유틸 기능 함수들
+  const closeActiveTab = () => {
+    if (!dockviewRef.current || !dockviewRef.current.activePanel) return;
+
+    const activePanel = dockviewRef.current.activePanel;
+    if (activePanel.id !== "welcome") {
+      dockviewRef.current.removePanel(activePanel);
+      setTimeout(() => {
+        saveLayout();
+      }, 300);
+    }
+  };
+
+  const closeGroupTabs = (groupId: string) => {
+    if (!dockviewRef.current) return;
+
+    const targetGroup = dockviewRef.current.groups.find(
+      (g) => g.id === groupId,
+    );
+    if (!targetGroup) return;
+
+    const panels = targetGroup.panels.filter((p) => p.id !== "welcome");
+    panels.forEach((panel) => {
+      dockviewRef.current?.removePanel(panel);
+    });
+
+    setTimeout(() => {
+      saveLayout();
+    }, 300);
+  };
+
+  // 컨텍스트 메뉴 추가 (드래그 앤 드롭 방해하지 않는 방식)
+  const addContextMenuToGroup = (group: any) => {
+    setTimeout(() => {
+      const groupElement = group.element;
+      if (!groupElement) return;
+
+      const tabsContainer = groupElement.querySelector(
+        ".dv-tabs-and-actions-container",
+      );
+      if (!tabsContainer) return;
+
+      // 우클릭 이벤트 추가
+      const handleContextMenu = (e: MouseEvent) => {
+        e.preventDefault();
+        setContextMenu({
+          x: e.clientX,
+          y: e.clientY,
+          groupId: group.id,
+        });
+      };
+
+      tabsContainer.addEventListener("contextmenu", handleContextMenu);
+    }, 100);
+  };
+
+  // 컨텍스트 메뉴 닫기
+  const closeContextMenu = () => {
+    setContextMenu(null);
+  };
+
+  // 외부 클릭 시 컨텍스트 메뉴 닫기
+  React.useEffect(() => {
+    const handleClick = () => closeContextMenu();
+    if (contextMenu) {
+      document.addEventListener("click", handleClick);
+      return () => document.removeEventListener("click", handleClick);
+    }
+  }, [contextMenu]);
 
   return (
     <div className="h-screen flex">
@@ -392,7 +494,56 @@ export const DevelopersPage: React.FC = () => {
           }}
         />
 
-        {/* dockview 기본 스타일만 유지 */}
+        {/* 컨텍스트 메뉴 */}
+        {contextMenu && (
+          <div
+            className="fixed bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-[9999]"
+            style={{
+              left: contextMenu.x,
+              top: contextMenu.y,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
+              onClick={() => {
+                closeGroupTabs(contextMenu.groupId);
+                closeContextMenu();
+              }}
+            >
+              <svg
+                width="14"
+                height="14"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+              </svg>
+              이 그룹의 모든 탭 닫기
+            </button>
+          </div>
+        )}
+
+        {/* 드래그 앤 드롭 방해 없는 깔끔한 스타일 */}
+        <style>
+          {`
+            /* 컨텍스트 메뉴 애니메이션 */
+            .fixed {
+              animation: contextMenuFadeIn 0.15s ease-out;
+            }
+
+            @keyframes contextMenuFadeIn {
+              from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-8px);
+              }
+              to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+              }
+            }
+          `}
+        </style>
       </div>
     </div>
   );
