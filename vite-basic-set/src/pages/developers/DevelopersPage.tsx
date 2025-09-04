@@ -54,7 +54,7 @@ export const DevelopersPage: React.FC = () => {
               const developerId = panelParam.replace("developer-", "");
               const developer = developers.find((d) => d.id === developerId);
               if (developer) {
-                openDeveloperTab(developer);
+                handleDeveloperDoubleClick(developer);
               }
             }
           }
@@ -166,6 +166,47 @@ export const DevelopersPage: React.FC = () => {
 
       // 플로팅 그룹 감지 및 스타일 적용
       if (group.api.location.type === "floating") {
+        // 즉시 크기 설정
+        const floatingWidth = Math.min(1400, window.innerWidth * 0.8);
+        const floatingHeight = Math.min(900, window.innerHeight * 0.8);
+
+        // API를 통한 크기 설정
+        if (group.api.setSize) {
+          try {
+            group.api.setSize({
+              width: floatingWidth,
+              height: floatingHeight,
+            });
+            console.log(
+              "Set floating group size:",
+              floatingWidth,
+              "x",
+              floatingHeight,
+            );
+          } catch (error) {
+            console.log("Failed to set floating group size:", error);
+          }
+        }
+
+        // DOM 요소 직접 조작
+        const groupElement = group.element;
+        if (groupElement) {
+          const centerX = Math.max(20, (window.innerWidth - floatingWidth) / 2);
+          const centerY = Math.max(
+            20,
+            (window.innerHeight - floatingHeight) / 2,
+          );
+
+          groupElement.style.cssText += `
+            width: ${floatingWidth}px !important;
+            height: ${floatingHeight}px !important;
+            left: ${centerX}px !important;
+            top: ${centerY}px !important;
+            min-width: ${floatingWidth}px !important;
+            min-height: ${floatingHeight}px !important;
+          `;
+        }
+
         enhanceFloatingGroup(group);
       }
     });
@@ -486,10 +527,12 @@ export const DevelopersPage: React.FC = () => {
     if (!targetGroup || !targetGroup.activePanel) return;
 
     try {
-      // 현재 활성 패널을 플로팅 그룹으로 분리 (더 큰 사이즈로)
-      // 화면 중앙에 배치하도록 계산된 위치
-      const centerX = Math.max(50, (window.innerWidth - 900) / 2);
-      const centerY = Math.max(50, (window.innerHeight - 650) / 2);
+      // 현재 활성 패널을 플로팅 그룹으로 분리 (훨씬 더 큰 사이즈로)
+      // 화면의 80% 크기로 설정
+      const floatingWidth = Math.min(1400, window.innerWidth * 0.8);
+      const floatingHeight = Math.min(900, window.innerHeight * 0.8);
+      const centerX = Math.max(20, (window.innerWidth - floatingWidth) / 2);
+      const centerY = Math.max(20, (window.innerHeight - floatingHeight) / 2);
 
       dockviewRef.current.addFloatingGroup(targetGroup.activePanel, {
         position: { left: centerX, top: centerY },
@@ -531,68 +574,175 @@ export const DevelopersPage: React.FC = () => {
       // 플로팅 그룹에 세련된 클래스 추가
       groupElement.classList.add("enhanced-floating-group");
 
-      // 그림자, 둥근 모서리 및 더 큰 기본 사이즈 적용
+      // 현대적이고 큰 플로팅 다이어로그 스타일
+      const floatingWidth = Math.min(1400, window.innerWidth * 0.8);
+      const floatingHeight = Math.min(900, window.innerHeight * 0.8);
+
+      // API를 통한 크기 강제 설정
+      if (group.api && group.api.setSize) {
+        try {
+          group.api.setSize({
+            width: floatingWidth,
+            height: floatingHeight,
+          });
+        } catch (error) {
+          console.log("Failed to set group size via API:", error);
+        }
+      }
+
       groupElement.style.cssText = `
-        border-radius: 12px;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-                    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+        border-radius: 16px;
+        box-shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.25),
+                    0 16px 32px -8px rgba(0, 0, 0, 0.1),
                     0 0 0 1px rgba(0, 0, 0, 0.05);
         background: white;
         overflow: hidden;
-        min-width: 800px;
-        min-height: 600px;
-        width: 900px;
-        height: 650px;
+        min-width: ${floatingWidth}px;
+        min-height: ${floatingHeight}px;
+        width: ${floatingWidth}px;
+        height: ${floatingHeight}px;
+        border: 2px solid rgba(59, 130, 246, 0.1);
+        backdrop-filter: blur(20px);
       `;
 
-      // 헤더 스타일링 및 버튼 추가
+      // 더 현대적인 헤더 스타일링 및 버튼 추가
       const header = groupElement.querySelector(
         ".dv-tabs-and-actions-container",
       );
       if (header && !header.querySelector(".floating-actions")) {
         header.style.cssText = `
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
           color: white;
-          border-radius: 12px 12px 0 0;
-          padding: 8px 16px;
-          min-height: 40px;
+          border-radius: 16px 16px 0 0;
+          padding: 12px 20px;
+          min-height: 48px;
           display: flex;
           align-items: center;
           justify-content: space-between;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
         `;
 
-        // 플로팅 헤더 액션 버튼들 추가
+        // 더 큰 플로팅 헤더 액션 버튼들 추가
         const actionsContainer = document.createElement("div");
-        actionsContainer.className = "floating-actions flex items-center gap-1";
+        actionsContainer.className = "floating-actions flex items-center gap-2";
         actionsContainer.innerHTML = `
           <button class="floating-header-btn minimize-btn" title="최소화">
-            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path d="M19 13H5v-2h14v2z"/>
             </svg>
           </button>
+          <button class="floating-header-btn maximize-btn" title="최대화">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M4 4h16v16H4V4zm2 2v12h12V6H6z"/>
+            </svg>
+          </button>
           <button class="floating-header-btn close-btn" title="닫기">
-            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
             </svg>
           </button>
         `;
 
-        // 이벤트 리스너 추가
+        // 버튼 이벤트 리스너 추가
+        const maximizeBtn = actionsContainer.querySelector(".maximize-btn");
         const minimizeBtn = actionsContainer.querySelector(".minimize-btn");
         const closeBtn = actionsContainer.querySelector(".close-btn");
 
-        minimizeBtn?.addEventListener("click", (e) => {
-          e.stopPropagation();
-          groupElement.style.display =
-            groupElement.style.display === "none" ? "block" : "none";
+        // 최대화 버튼
+        maximizeBtn?.addEventListener("click", () => {
+          const currentWidth = parseInt(groupElement.style.width);
+          const currentHeight = parseInt(groupElement.style.height);
+          const maxWidth = window.innerWidth - 40;
+          const maxHeight = window.innerHeight - 40;
+
+          if (
+            currentWidth >= maxWidth - 100 &&
+            currentHeight >= maxHeight - 100
+          ) {
+            // 원래 크기로 복원
+            const originalWidth = Math.min(1400, window.innerWidth * 0.8);
+            const originalHeight = Math.min(900, window.innerHeight * 0.8);
+            const centerX = Math.max(
+              20,
+              (window.innerWidth - originalWidth) / 2,
+            );
+            const centerY = Math.max(
+              20,
+              (window.innerHeight - originalHeight) / 2,
+            );
+
+            groupElement.style.cssText += `
+              width: ${originalWidth}px !important;
+              height: ${originalHeight}px !important;
+              left: ${centerX}px !important;
+              top: ${centerY}px !important;
+            `;
+
+            if (group.api && group.api.setSize) {
+              group.api.setSize({
+                width: originalWidth,
+                height: originalHeight,
+              });
+            }
+          } else {
+            // 최대화
+            groupElement.style.cssText += `
+              width: ${maxWidth}px !important;
+              height: ${maxHeight}px !important;
+              left: 20px !important;
+              top: 20px !important;
+            `;
+
+            if (group.api && group.api.setSize) {
+              group.api.setSize({
+                width: maxWidth,
+                height: maxHeight,
+              });
+            }
+          }
         });
 
-        closeBtn?.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const panels = group.panels.filter((p: any) => p.id !== "welcome");
-          panels.forEach((panel: any) => {
-            dockviewRef.current?.removePanel(panel);
+        // 최소화 버튼
+        minimizeBtn?.addEventListener("click", () => {
+          const minimizedHeight = 48;
+          groupElement.style.cssText += `
+            height: ${minimizedHeight}px !important;
+            overflow: hidden !important;
+          `;
+
+          const content = groupElement.querySelector(".dv-group-view");
+          if (content) {
+            content.style.display = "none";
+          }
+
+          // 더블클릭으로 복원
+          header.addEventListener("dblclick", () => {
+            const originalHeight = Math.min(900, window.innerHeight * 0.8);
+            groupElement.style.cssText += `
+              height: ${originalHeight}px !important;
+              overflow: visible !important;
+            `;
+
+            if (content) {
+              content.style.display = "";
+            }
+
+            if (group.api && group.api.setSize) {
+              group.api.setSize({
+                height: originalHeight,
+              });
+            }
           });
+        });
+
+        // 닫기 버튼
+        closeBtn?.addEventListener("click", () => {
+          if (group.panels.length > 0) {
+            group.panels.forEach((panel: any) => {
+              dockviewRef.current?.removePanel(panel);
+            });
+          }
         });
 
         header.appendChild(actionsContainer);
@@ -806,28 +956,35 @@ export const DevelopersPage: React.FC = () => {
               }
             }
 
-            /* 플로팅 그룹 세련된 스타일 */
+            /* 더 현대적인 플로팅 그룹 스타일 */
             .enhanced-floating-group {
               backdrop-filter: blur(20px);
-              border: 1px solid rgba(255, 255, 255, 0.2);
-              animation: floatingGroupAppear 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+              border: 2px solid rgba(59, 130, 246, 0.1);
+              animation: floatingGroupAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
               transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+              box-shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.25);
             }
 
             .enhanced-floating-group:hover {
-              box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
-                          0 0 0 1px rgba(255, 255, 255, 0.1);
-              transform: translateY(-2px);
+              box-shadow: 0 40px 80px -12px rgba(0, 0, 0, 0.3),
+                          0 0 0 2px rgba(59, 130, 246, 0.2);
+              transform: translateY(-4px);
+              border-color: rgba(59, 130, 246, 0.2);
             }
 
-            /* 플로팅 그룹 나타나는 애니메이션 */
+            /* 더 부드러운 플로팅 그룹 애니메이션 */
             @keyframes floatingGroupAppear {
-              from {
+              0% {
                 opacity: 0;
-                transform: scale(0.95) translateY(-20px);
-                filter: blur(4px);
+                transform: scale(0.9) translateY(-30px);
+                filter: blur(8px);
               }
-              to {
+              60% {
+                opacity: 0.8;
+                transform: scale(1.02) translateY(-5px);
+                filter: blur(2px);
+              }
+              100% {
                 opacity: 1;
                 transform: scale(1) translateY(0);
                 filter: blur(0);
@@ -855,19 +1012,19 @@ export const DevelopersPage: React.FC = () => {
               transform: translateY(-1px);
             }
 
-            /* 플로팅 헤더 액션 버튼 */
+            /* 더 큰 플로팅 헤더 액션 버튼 */
             .floating-header-btn {
               display: flex;
               align-items: center;
               justify-content: center;
-              width: 24px;
-              height: 24px;
+              width: 32px;
+              height: 32px;
               border: none;
               background: rgba(255, 255, 255, 0.1);
-              border-radius: 4px;
-              color: rgba(255, 255, 255, 0.8);
+              color: rgba(255, 255, 255, 0.9);
+              border-radius: 8px;
               cursor: pointer;
-              transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+              transition: all 0.2s ease;
               backdrop-filter: blur(10px);
               border: 1px solid rgba(255, 255, 255, 0.1);
             }
@@ -875,13 +1032,18 @@ export const DevelopersPage: React.FC = () => {
             .floating-header-btn:hover {
               background: rgba(255, 255, 255, 0.2);
               color: white;
-              transform: scale(1.05);
+              transform: scale(1.1);
               box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             }
 
             .floating-header-btn:active {
               transform: scale(0.95);
               transition: transform 0.1s ease;
+            }
+
+            .floating-header-btn.close-btn:hover {
+              background: rgba(239, 68, 68, 0.9);
+              border-color: rgba(239, 68, 68, 1);
             }
 
             .close-btn:hover {
@@ -934,6 +1096,21 @@ export const DevelopersPage: React.FC = () => {
             .enhanced-floating-group .dv-group-view > .dv-content {
               background: rgba(255, 255, 255, 0.98);
               backdrop-filter: blur(10px);
+            }
+
+            /* 기본 플로팅 그룹 크기 강제 설정 */
+            .dv-floating-group {
+              min-width: min(1400px, 80vw) !important;
+              min-height: min(900px, 80vh) !important;
+              width: min(1400px, 80vw) !important;
+              height: min(900px, 80vh) !important;
+            }
+
+            .enhanced-floating-group {
+              min-width: min(1400px, 80vw) !important;
+              min-height: min(900px, 80vh) !important;
+              width: min(1400px, 80vw) !important;
+              height: min(900px, 80vh) !important;
             }
 
             /* 전체화면 모드 스타일 */
