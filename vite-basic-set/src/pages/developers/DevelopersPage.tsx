@@ -103,10 +103,15 @@ export const DevelopersPage: React.FC = () => {
       }, 300);
     });
 
-    // 그룹 추가시 컨텍스트 메뉴 이벤트 등록
+    // 그룹 추가시 이벤트 등록
     event.api.onDidAddGroup((group) => {
       console.log("Group added:", group);
       addContextMenuToGroup(group);
+
+      // 플로팅 그룹 감지 및 스타일 적용
+      if (group.api.location.type === "floating") {
+        enhanceFloatingGroup(group);
+      }
     });
 
     // 기존 그룹들에 컨텍스트 메뉴 추가
@@ -416,6 +421,102 @@ export const DevelopersPage: React.FC = () => {
     }, 300);
   };
 
+  const floatActiveTab = (groupId: string) => {
+    if (!dockviewRef.current) return;
+
+    const targetGroup = dockviewRef.current.groups.find(
+      (g) => g.id === groupId,
+    );
+    if (!targetGroup || !targetGroup.activePanel) return;
+
+    try {
+      // 현재 활성 패널을 플로팅 그룹으로 분리
+      dockviewRef.current.addFloatingGroup(targetGroup.activePanel, {
+        position: { left: 100, top: 100 },
+      });
+    } catch (error) {
+      console.log("Floating group creation failed:", error);
+    }
+
+    setTimeout(() => {
+      saveLayout();
+    }, 300);
+  };
+
+  // 세련된 플로팅 그룹 스타일 및 헤더 액션 적용
+  const enhanceFloatingGroup = (group: any) => {
+    setTimeout(() => {
+      const groupElement = group.element;
+      if (!groupElement) return;
+
+      // 플로팅 그룹에 세련된 클래스 추가
+      groupElement.classList.add("enhanced-floating-group");
+
+      // 그림자 및 둥근 모서리 적용
+      groupElement.style.cssText = `
+        border-radius: 12px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+                    0 0 0 1px rgba(0, 0, 0, 0.05);
+        background: white;
+        overflow: hidden;
+      `;
+
+      // 헤더 스타일링 및 버튼 추가
+      const header = groupElement.querySelector(
+        ".dv-tabs-and-actions-container",
+      );
+      if (header && !header.querySelector(".floating-actions")) {
+        header.style.cssText = `
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border-radius: 12px 12px 0 0;
+          padding: 8px 16px;
+          min-height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        `;
+
+        // 플로팅 헤더 액션 버튼들 추가
+        const actionsContainer = document.createElement("div");
+        actionsContainer.className = "floating-actions flex items-center gap-1";
+        actionsContainer.innerHTML = `
+          <button class="floating-header-btn minimize-btn" title="최소화">
+            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 13H5v-2h14v2z"/>
+            </svg>
+          </button>
+          <button class="floating-header-btn close-btn" title="닫기">
+            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+          </button>
+        `;
+
+        // 이벤트 리스너 추가
+        const minimizeBtn = actionsContainer.querySelector(".minimize-btn");
+        const closeBtn = actionsContainer.querySelector(".close-btn");
+
+        minimizeBtn?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          groupElement.style.display =
+            groupElement.style.display === "none" ? "block" : "none";
+        });
+
+        closeBtn?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const panels = group.panels.filter((p: any) => p.id !== "welcome");
+          panels.forEach((panel: any) => {
+            dockviewRef.current?.removePanel(panel);
+          });
+        });
+
+        header.appendChild(actionsContainer);
+      }
+    }, 100);
+  };
+
   // 컨텍스트 메뉴 추가 (드래그 앤 드롭 방해하지 않는 방식)
   const addContextMenuToGroup = (group: any) => {
     setTimeout(() => {
@@ -562,10 +663,30 @@ export const DevelopersPage: React.FC = () => {
               </svg>
               다른 탭들 닫기
             </button>
+
+            <hr className="my-1" />
+
+            <button
+              className="w-full px-4 py-2 text-left text-sm hover:bg-blue-50 hover:text-blue-700 flex items-center gap-2"
+              onClick={() => {
+                floatActiveTab(contextMenu.groupId);
+                closeContextMenu();
+              }}
+            >
+              <svg
+                width="14"
+                height="14"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M5,16L3,14L5,12L6.5,13.5L4.75,15.25L12.25,15.25L10.5,13.5L12,12L16,16L12,20L10.5,18.5L12.25,16.75L4.75,16.75L6.5,18.5L5,20L3,18L5,16M15,8L13,6L15,4L16.5,5.5L14.75,7.25L22.25,7.25L20.5,5.5L22,4L24,6L22,8L20.5,6.5L22.25,8.25L14.75,8.25L16.5,9.5L15,11L13,9L15,8Z" />
+              </svg>
+              새 창으로 분리
+            </button>
           </div>
         )}
 
-        {/* 드래그 앤 드롭 방해 없는 깔끔한 스타일 */}
+        {/* 세련된 플로팅 뷰 및 헤더 액션 스타일 */}
         <style>
           {`
             /* 컨텍스트 메뉴 애니메이션 */
@@ -582,6 +703,136 @@ export const DevelopersPage: React.FC = () => {
                 opacity: 1;
                 transform: scale(1) translateY(0);
               }
+            }
+
+            /* 플로팅 그룹 세련된 스타일 */
+            .enhanced-floating-group {
+              backdrop-filter: blur(20px);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              animation: floatingGroupAppear 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+              transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .enhanced-floating-group:hover {
+              box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                          0 0 0 1px rgba(255, 255, 255, 0.1);
+              transform: translateY(-2px);
+            }
+
+            /* 플로팅 그룹 나타나는 애니메이션 */
+            @keyframes floatingGroupAppear {
+              from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-20px);
+                filter: blur(4px);
+              }
+              to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                filter: blur(0);
+              }
+            }
+
+            .enhanced-floating-group .dv-tab {
+              color: rgba(255, 255, 255, 0.9);
+              border: none;
+              background: transparent;
+              transition: all 0.2s ease;
+              margin: 0 2px;
+            }
+
+            .enhanced-floating-group .dv-tab.dv-active {
+              color: white;
+              background: rgba(255, 255, 255, 0.2);
+              border-radius: 6px;
+              box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            }
+
+            .enhanced-floating-group .dv-tab:hover {
+              background: rgba(255, 255, 255, 0.1);
+              border-radius: 6px;
+              transform: translateY(-1px);
+            }
+
+            /* 플로팅 헤더 액션 버튼 */
+            .floating-header-btn {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 24px;
+              height: 24px;
+              border: none;
+              background: rgba(255, 255, 255, 0.1);
+              border-radius: 4px;
+              color: rgba(255, 255, 255, 0.8);
+              cursor: pointer;
+              transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+              backdrop-filter: blur(10px);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .floating-header-btn:hover {
+              background: rgba(255, 255, 255, 0.2);
+              color: white;
+              transform: scale(1.05);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .floating-header-btn:active {
+              transform: scale(0.95);
+              transition: transform 0.1s ease;
+            }
+
+            .close-btn:hover {
+              background: rgba(239, 68, 68, 0.8) !important;
+              color: white !important;
+              border-color: rgba(239, 68, 68, 0.3);
+            }
+
+            .minimize-btn:hover {
+              background: rgba(59, 130, 246, 0.8) !important;
+              border-color: rgba(59, 130, 246, 0.3);
+            }
+
+            /* 플로팅 그룹 드래그 핸들 */
+            .enhanced-floating-group .dv-tabs-and-actions-container {
+              cursor: move;
+              position: relative;
+            }
+
+            .enhanced-floating-group .dv-tabs-and-actions-container:active {
+              cursor: grabbing;
+            }
+
+            .enhanced-floating-group .dv-tabs-and-actions-container::before {
+              content: '';
+              position: absolute;
+              top: 50%;
+              left: 8px;
+              width: 4px;
+              height: 4px;
+              background: rgba(255, 255, 255, 0.3);
+              border-radius: 50%;
+              box-shadow:
+                0 6px 0 rgba(255, 255, 255, 0.3),
+                0 12px 0 rgba(255, 255, 255, 0.3);
+              transform: translateY(-50%);
+            }
+
+            /* 플로팅 그룹 리사이즈 핸들 개선 */
+            .enhanced-floating-group .dv-resize-handle {
+              background: rgba(0, 0, 0, 0.1);
+              transition: all 0.2s ease;
+            }
+
+            .enhanced-floating-group .dv-resize-handle:hover {
+              background: rgba(0, 0, 0, 0.2);
+            }
+
+            /* 플로팅 그룹 내 컨텐츠 영역 */
+            .enhanced-floating-group .dv-group-view > .dv-content {
+              background: rgba(255, 255, 255, 0.98);
+              backdrop-filter: blur(10px);
             }
           `}
         </style>
