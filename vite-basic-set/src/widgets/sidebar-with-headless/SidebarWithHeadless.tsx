@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import HeadlessTreeNav, {
   type HeadlessTreeNode,
@@ -144,18 +144,22 @@ export const SidebarWithHeadless: React.FC<SidebarWithHeadlessProps> = ({
   const navigate = useNavigate();
 
   const activeId = deriveActiveId(ORG_TREE, location.pathname);
-  const [treeKey, setTreeKey] = useState(0);
+  // removed treeKey (remount hack) – programmatic collapse/expand API now used
+  const [selectedDepth, setSelectedDepth] = useState<number | null>(null);
+  const apiRef = useRef<{
+    expandToDepth(depth: number): void;
+    collapseAll(): void;
+  } | null>(null);
 
-  // Toolbar action handlers (currently stubbed: HeadlessTreeNav does not expose programmatic expand API yet)
+  // Toolbar action handlers using HeadlessTreeNav onReady API
   const collapseAll = () => {
-    // Re-mount tree to simulate full collapse; proper implementation would iterate instances and call collapse()
-    setTreeKey((k) => k + 1);
-    // TODO: integrate with HeadlessTreeNav internal API for precise collapse
+    apiRef.current?.collapseAll();
+    setSelectedDepth(null);
   };
 
   const expandDepth = (depth: number) => {
-    console.warn("[TreeToolbar] expandDepth stub depth=", depth);
-    // TODO: implement programmatic expand to a certain depth inside HeadlessTreeNav
+    apiRef.current?.expandToDepth(depth);
+    setSelectedDepth(depth);
   };
 
   /**
@@ -170,21 +174,25 @@ export const SidebarWithHeadless: React.FC<SidebarWithHeadlessProps> = ({
   interface TreeToolbarProps {
     onCollapseAll: () => void;
     onExpandDepth: (depth: number) => void;
+    currentDepth: number | null;
     disabled?: boolean;
   }
 
   function TreeToolbar({
     onCollapseAll,
     onExpandDepth,
+    currentDepth,
     disabled,
   }: TreeToolbarProps) {
     const btnBase =
-      "rounded border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed text-[10px] px-2 py-1 leading-none text-gray-600";
+      "rounded border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed text-[10px] px-2 py-1 leading-none text-gray-600 transition-colors";
+    const activeCls =
+      "bg-indigo-600 text-white hover:bg-indigo-500 border-indigo-600";
     return (
       <div className="flex items-center gap-1">
         <button
           type="button"
-          className={btnBase}
+          className={`${btnBase} ${currentDepth === null ? activeCls : ""}`}
           onClick={onCollapseAll}
           disabled={disabled}
           title="전체 닫기"
@@ -192,19 +200,22 @@ export const SidebarWithHeadless: React.FC<SidebarWithHeadlessProps> = ({
         >
           ↺
         </button>
-        {[1, 2, 3].map((d) => (
-          <button
-            key={d}
-            type="button"
-            className={btnBase}
-            onClick={() => onExpandDepth(d)}
-            disabled={disabled}
-            title={`깊이 ${d}까지 펼치기`}
-            aria-label={`깊이 ${d}까지 펼치기`}
-          >
-            {d}
-          </button>
-        ))}
+        {[1, 2, 3].map((d) => {
+          const isActive = currentDepth === d;
+          return (
+            <button
+              key={d}
+              type="button"
+              className={`${btnBase} ${isActive ? activeCls : ""}`}
+              onClick={() => onExpandDepth(d)}
+              disabled={disabled}
+              title={`깊이 ${d}까지 펼치기`}
+              aria-label={`깊이 ${d}까지 펼치기`}
+            >
+              {d}
+            </button>
+          );
+        })}
       </div>
     );
   }
@@ -227,17 +238,21 @@ export const SidebarWithHeadless: React.FC<SidebarWithHeadlessProps> = ({
         <TreeToolbar
           onCollapseAll={collapseAll}
           onExpandDepth={expandDepth}
+          currentDepth={selectedDepth}
           disabled={false}
         />
       </div>
+      {/* key prop removed (no longer remounting for collapse) */}
       <HeadlessTreeNav
-        key={treeKey}
         data={ORG_TREE}
         activeId={activeId}
         enableDnd={enableDnd}
         enableHotkeys
         searchable
         height="calc(100vh - 60px)"
+        onReady={(api) => {
+          apiRef.current = api;
+        }}
         onSelect={(node) => {
           // 라우트 있는 항목이면 이동
           // @ts-expect-error(meta 자유 필드)

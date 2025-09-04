@@ -49,6 +49,15 @@ export interface HeadlessTreeNavProps {
     targetId: string;
     position: "before" | "after" | "inside";
   }): void;
+  /**
+   * HeadlessTreeNav 가 마운트된 뒤 프로그램적 제어 API 전달
+   * - expandToDepth(depth): depth (1=루트 자식, 2=손자까지...) 까지 모든 폴더 펼치기
+   * - collapseAll(): 루트 제외 전체 접기
+   */
+  onReady?(api: {
+    expandToDepth(depth: number): void;
+    collapseAll(): void;
+  }): void;
 }
 
 /* Data normalization */
@@ -80,6 +89,7 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
   enableHotkeys = true,
   searchable = true,
   onSelect,
+  onReady,
 }) => {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebouncedValue(query, 150);
@@ -117,6 +127,57 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
     },
     features,
   });
+  /* -----------------------------------------------------------
+     Programmatic Control API
+     - collapseAll: root 제외 전체 접기
+     - expandToDepth(d):
+         * 모든 폴더 우선 접은 뒤
+         * meta.level < d 인 노드 expand (root 자식 level=0 가정)
+         * d=1 => 1단(루트 직속), d=2 => 2단, ...
+     ----------------------------------------------------------- */
+  const collapseAll = useCallback(() => {
+    tree.getItems().forEach((inst: any) => {
+      const id = inst.getId();
+      if (id !== ROOT_ID) {
+        try {
+          if (inst.isExpanded?.()) inst.collapse?.();
+        } catch {
+          /* ignore */
+        }
+      }
+    });
+  }, [tree]);
+
+  const expandToDepth = useCallback(
+    (depth: number) => {
+      if (depth <= 0) {
+        collapseAll();
+        return;
+      }
+      // 1) 모든 폴더 접기
+      collapseAll();
+      // 2) depth 까지 펼치기 (meta.level 은 루트 child 가 0 이라고 가정)
+      tree.getItems().forEach((inst: any) => {
+        try {
+          const id = inst.getId();
+          if (id === ROOT_ID) return;
+          const meta: any = inst.getItemMeta?.();
+          const lvl = meta?.level ?? 0;
+          if (lvl < depth) {
+            if (!inst.isExpanded?.()) inst.expand?.();
+          }
+        } catch {
+          /* ignore */
+        }
+      });
+    },
+    [tree, collapseAll],
+  );
+
+  // onReady 로 외부에 API 전달
+  useEffect(() => {
+    onReady?.({ expandToDepth, collapseAll });
+  }, [onReady, expandToDepth, collapseAll]);
 
   /* Global search (expansion-independent for match discovery)
      - Always searches the entire original data (map)
