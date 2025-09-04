@@ -1,0 +1,15 @@
+/* Minimal dockview light theme customization */
+/* Using built-in dockview-theme-light with minor adjustments only */
+
+.dockview-theme-light {
+    /* Only override specific colors if needed, using existing CSS variables */
+    --dv-tabs-and-actions-container-background-color: #f8f8f8;
+    --dv-activegroup-visiblepanel-tab-background-color: #ffffff;
+    --dv-activegroup-hiddenpanel-tab-background-color: #f0f0f0;
+}
+
+/* Ensure panel content has proper background */
+.dockview-theme-light .dv-panel-content {
+    background-color: #ffffff;
+    color: #333333;
+}

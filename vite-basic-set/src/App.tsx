@@ -3,6 +3,8 @@ import AppLayout from "./widgets/layout/AppLayout";
 import HomePage from "./pages/home/HomePage";
 import AboutPage from "./pages/about/AboutPage";
 import ManualPage from "./pages/manual/ManualPage";
+import TodoPage from "./pages/todo/TodoPage";
+import DevelopersPage from "./pages/developers/DevelopersPage";
 
 /**
  * App.tsx
@@ -21,6 +23,8 @@ export default function App() {
           <Route index element={<HomePage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="manual" element={<ManualPage />} />
+          <Route path="todo" element={<TodoPage />} />
+          <Route path="developers" element={<DevelopersPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

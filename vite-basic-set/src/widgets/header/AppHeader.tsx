@@ -10,12 +10,16 @@ const NAV_ITEMS: PrimaryNavItem[] = [
   { id: "home", label: "Home" },
   { id: "about", label: "About" },
   { id: "manual", label: "Manual" },
+  { id: "todo", label: "Todo" },
+  { id: "developers", label: "개발자 관리" },
 ];
 
 /* 경로 → 활성 nav id 매핑 유틸 (간단 규칙 기반) */
 function deriveActiveId(pathname: string): string {
   if (pathname.startsWith("/about")) return "about";
   if (pathname.startsWith("/manual")) return "manual";
+  if (pathname.startsWith("/todo")) return "todo";
+  if (pathname.startsWith("/developers")) return "developers";
   return "home";
 }
 
@@ -128,6 +132,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         break;
       case "manual":
         navigate("/manual");
+        break;
+      case "todo":
+        navigate("/todo");
+        break;
+      case "developers":
+        navigate("/developers");
         break;
       case "home":
       default:

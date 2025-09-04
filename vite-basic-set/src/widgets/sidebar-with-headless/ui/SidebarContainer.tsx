@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { HeadlessTreeNav } from "./HeadlessTreeNav";
 import { SidebarHeader } from "./SidebarHeader";
 import { CollapsedSidebar } from "./CollapsedSidebar";
-import DepthToolbar from "../../../shared/ui/DepthToolbar";
 import { ORG_TREE } from "../data/orgTree";
 import { deriveActiveId } from "../lib/activeIdUtils";
 import { useSidebarState } from "../model/sidebarState";
@@ -27,7 +26,7 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   const activeId = deriveActiveId(ORG_TREE, location.pathname);
   const { selectedDepth, apiRef, collapseAll, expandDepth } = useSidebarState();
@@ -46,7 +45,7 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
       <SidebarHeader
         isCollapsed={isCollapsed}
         onToggle={() => setIsCollapsed(!isCollapsed)}
-        selectedDepth={selectedDepth}
+        selectedDepth={selectedDepth ?? 0}
         onCollapseAll={collapseAll}
         onExpandDepth={expandDepth}
         maxDepth={3}
