@@ -430,9 +430,13 @@ export const DevelopersPage: React.FC = () => {
     if (!targetGroup || !targetGroup.activePanel) return;
 
     try {
-      // 현재 활성 패널을 플로팅 그룹으로 분리
+      // 현재 활성 패널을 플로팅 그룹으로 분리 (더 큰 사이즈로)
+      // 화면 중앙에 배치하도록 계산된 위치
+      const centerX = Math.max(50, (window.innerWidth - 900) / 2);
+      const centerY = Math.max(50, (window.innerHeight - 650) / 2);
+
       dockviewRef.current.addFloatingGroup(targetGroup.activePanel, {
-        position: { left: 100, top: 100 },
+        position: { left: centerX, top: centerY },
       });
     } catch (error) {
       console.log("Floating group creation failed:", error);
@@ -452,7 +456,7 @@ export const DevelopersPage: React.FC = () => {
       // 플로팅 그룹에 세련된 클래스 추가
       groupElement.classList.add("enhanced-floating-group");
 
-      // 그림자 및 둥근 모서리 적용
+      // 그림자, 둥근 모서리 및 더 큰 기본 사이즈 적용
       groupElement.style.cssText = `
         border-radius: 12px;
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
@@ -460,6 +464,10 @@ export const DevelopersPage: React.FC = () => {
                     0 0 0 1px rgba(0, 0, 0, 0.05);
         background: white;
         overflow: hidden;
+        min-width: 800px;
+        min-height: 600px;
+        width: 900px;
+        height: 650px;
       `;
 
       // 헤더 스타일링 및 버튼 추가
