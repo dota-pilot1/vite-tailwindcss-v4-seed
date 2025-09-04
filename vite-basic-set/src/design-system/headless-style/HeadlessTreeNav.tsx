@@ -111,87 +111,129 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
     features,
   });
 
-  /* Search derivation: matched + ancestors */
+  /* Global search (expansion-independent for match discovery)
+     - Always searches the entire original data (map)
+     - Always shows: matched nodes + their ancestors
+     - Additionally shows descendants of matched nodes ONLY if they are currently visible
+       (i.e. user expanded the matched branch), keeping noise low.
+  */
+  const visibleItems = tree.getItems();
+  /* Expansion signature (only expanded folders, stable ordering) */
+  const expansionSig = useMemo(
+    () =>
+      tree
+        .getItems()
+        .filter((i: any) => i.isExpanded?.())
+        .map((i: any) => i.getId())
+        .sort()
+        .join("|"),
+    [tree, visibleItems],
+  );
+
+  /* Compute actually visible (expanded path) node ids via DFS (uses expansionSig). */
+  const expandedVisibleIds = useMemo(() => {
+    const set = new Set<string>();
+    const visit = (nodes: HeadlessTreeNode[], parentExpanded: boolean) => {
+      if (!parentExpanded) return;
+      nodes.forEach((n) => {
+        set.add(n.id);
+        let inst: any = null;
+        try {
+          inst = tree.getItemInstance(n.id);
+        } catch {
+          /* ignore */
+        }
+        const isOpen = inst?.isExpanded?.() ?? false;
+        if (n.isFolder && n.children?.length) {
+          visit(n.children, isOpen);
+        }
+      });
+    };
+    visit(data, true); // synthetic root always expanded
+    return set;
+  }, [data, tree, expansionSig]);
+
   const searchInfo = useMemo(() => {
     if (!query.trim()) {
       return {
-        list: tree.getItems().filter((it) => it.getId() !== ROOT_ID),
+        listIds: visibleItems
+          .map((i) => i.getId())
+          .filter((id) => id !== ROOT_ID),
         matched: new Set<string>(),
         ancestors: new Set<string>(),
-        descendants: new Set<string>(),
       };
     }
+
     const q = query.toLowerCase();
-    const items = tree.getItems();
     const matched = new Set<string>();
     const ancestors = new Set<string>();
-    const descendants = new Set<string>();
+    const parentOf: Record<string, string | undefined> = {};
 
-    const getParentId = (it: any) => it.getItemMeta().parentId;
+    Object.entries(childrenMap).forEach(([pid, kids]) =>
+      kids.forEach((k) => {
+        parentOf[k] = pid;
+      }),
+    );
 
-    items.forEach((it) => {
-      if (it.getId() === ROOT_ID) return;
-      const name = it.getItemData()?.name?.toLowerCase() || "";
+    // Collect matched + ancestors (full tree, ignoring expansion)
+    Object.values(map).forEach((node) => {
+      const name = node.name.toLowerCase();
       if (name.includes(q)) {
-        matched.add(it.getId());
-        // collect ancestors
-        let p = getParentId(it);
+        matched.add(node.id);
+        let p = parentOf[node.id];
         while (p && p !== ROOT_ID) {
-          ancestors.add(p);
-          const parent = tree.getItemInstance(p);
-          p = parent.getItemMeta().parentId;
+          if (!ancestors.has(p)) ancestors.add(p);
+          p = parentOf[p];
         }
       }
     });
 
-    // collect descendants (recursive) of each matched item
-    const collectDesc = (id: string) => {
-      const childIds = childrenMap[id] || [];
-      for (const cid of childIds) {
-        if (!descendants.has(cid)) {
-          descendants.add(cid);
-          collectDesc(cid);
-        }
+    // Descendant visibility: only if node AND its ancestor chain are currently expanded
+    const isExpandedDescendantOfMatched = (id: string) => {
+      let p = parentOf[id];
+      let touchedMatched = false;
+      while (p && p !== ROOT_ID) {
+        if (!expandedVisibleIds.has(p)) return false; // collapsed ancestor stops visibility
+        if (matched.has(p)) touchedMatched = true;
+        p = parentOf[p];
       }
+      return touchedMatched;
     };
-    matched.forEach((id) => collectDesc(id));
 
-    // list preserves original order; include matched + ancestors + descendants
-    const list = items.filter((it) => {
-      const id = it.getId();
-      if (id === ROOT_ID) return false;
-      return matched.has(id) || ancestors.has(id) || descendants.has(id);
-    });
+    // Preorder list respecting original tree order
+    const listIds: string[] = [];
+    const walk = (nodes: HeadlessTreeNode[]) => {
+      nodes.forEach((n) => {
+        const id = n.id;
+        if (
+          ancestors.has(id) || // always keep ancestors
+          (matched.has(id) && expandedVisibleIds.has(id)) || // matched node visible only if its chain is expanded
+          (expandedVisibleIds.has(id) && isExpandedDescendantOfMatched(id)) // visible descendant of a matched node
+        ) {
+          if (id !== ROOT_ID) listIds.push(id);
+        }
+        if (n.children?.length) walk(n.children);
+      });
+    };
+    walk(data);
 
-    return { list, matched, ancestors, descendants };
-  }, [query, tree, childrenMap]);
+    return { listIds, matched, ancestors };
+  }, [query, data, map, childrenMap, visibleItems, expandedVisibleIds]);
 
-  /* Auto expand ancestors + matched so descendants become visible */
+  /* Auto expand only ancestors so matched nodes are reachable; matched remain collapsed unless user opens */
   const expandedAppliedRef = useRef<string>("");
   useEffect(() => {
     if (!query.trim()) return;
-    const signature = [
-      ...Array.from(searchInfo.ancestors).sort(),
-      "|",
-      ...Array.from(searchInfo.matched).sort(),
-    ].join("");
+    const signature = Array.from(searchInfo.ancestors).sort().join("|");
     if (expandedAppliedRef.current === signature) return;
-
-    const toOpen = new Set<string>([
-      ...searchInfo.ancestors,
-      ...searchInfo.matched,
-    ]);
-
-    toOpen.forEach((id) => {
+    searchInfo.ancestors.forEach((id) => {
       try {
         const inst = tree.getItemInstance(id);
         if (!inst.isExpanded()) inst.expand();
-      } catch {
-        /* ignore */
-      }
+      } catch {}
     });
     expandedAppliedRef.current = signature;
-  }, [query, searchInfo.ancestors, searchInfo.matched, tree]);
+  }, [query, searchInfo.ancestors, tree]);
 
   const handleItemClick = useCallback(
     (item: any, e: React.MouseEvent) => {
@@ -285,7 +327,7 @@ export const HeadlessTreeNav: React.FC<HeadlessTreeNavProps> = ({
     typeof height === "number" ? `${height}px` : height || "400px";
 
   const itemsToRender = query.trim()
-    ? searchInfo.list
+    ? searchInfo.listIds.map((id) => tree.getItemInstance(id))
     : tree.getItems().filter((it) => it.getId() !== ROOT_ID);
 
   return (
