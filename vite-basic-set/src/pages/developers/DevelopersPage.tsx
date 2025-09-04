@@ -98,6 +98,11 @@ export const DevelopersPage: React.FC = () => {
       }, 300);
     });
 
+    // 그룹 추가시 기본 이벤트만 등록
+    event.api.onDidAddGroup((group) => {
+      console.log("Group added:", group);
+    });
+
     // 개발자 데이터가 로딩될 때까지 대기 후 레이아웃 복원
     const restoreLayout = () => {
       if (developers.length === 0) {
@@ -209,10 +214,8 @@ export const DevelopersPage: React.FC = () => {
   };
 
   const handleWillDrop = (event: DockviewWillDropEvent) => {
-    // 상하 분할(above, below) 방지, 좌우 분할(left, right, within)만 허용
-    if (event.position === "above" || event.position === "below") {
-      event.preventDefault();
-    }
+    // 모든 방향의 드래그 앤 드롭 허용
+    console.log("Drop event:", event.position, event);
   };
 
   // 사이드바 토글 함수
@@ -325,6 +328,8 @@ export const DevelopersPage: React.FC = () => {
     );
   };
 
+  // 휴지통 버튼 제거됨 - 드래그 앤 드롭 방해 방지
+
   return (
     <div className="h-screen flex">
       {/* 사이드바 토글 버튼 */}
@@ -380,13 +385,14 @@ export const DevelopersPage: React.FC = () => {
         <DockviewReact
           onReady={onReady}
           theme={themeLight}
-          disableFloatingGroups={true}
           onWillDrop={handleWillDrop}
           components={{
             welcomePanel: WelcomePanel,
             developerEditPanel: DeveloperEditPanel,
           }}
         />
+
+        {/* dockview 기본 스타일만 유지 */}
       </div>
     </div>
   );
