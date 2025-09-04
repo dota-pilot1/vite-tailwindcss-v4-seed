@@ -1,13 +1,7 @@
 {
-  "builds": [
-    {
-      "src": "vite-basic-set/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "vite-basic-set/dist"
-      }
-    }
-  ],
+  "buildCommand": "cd vite-basic-set && npm run build",
+  "outputDirectory": "vite-basic-set/dist",
+  "installCommand": "cd vite-basic-set && npm install",
   "routes": [
     {
       "handle": "filesystem"
