@@ -858,9 +858,9 @@ export const DevelopersPage: React.FC = () => {
 
       {/* 메인 콘텐츠 영역 */}
       <div
-        className={`${isFullscreen ? "w-full h-full" : "flex-1 h-full"} bg-gray-50`}
+        className={`${isFullscreen ? "w-full h-full" : "flex-1 h-full"} bg-gray-50 flex flex-col`}
       >
-        <div className={`${isFullscreen ? "" : "p-4"} h-full`}>
+        <div className={`${isFullscreen ? "flex-1" : "flex-1 p-4"} h-0`}>
           <DockviewReact
             onReady={onReady}
             theme={themeLight}
@@ -872,95 +872,130 @@ export const DevelopersPage: React.FC = () => {
           />
         </div>
 
-        {/* 컨텍스트 메뉴 - 전체화면에서는 숨김 */}
-        {contextMenu && !isFullscreen && (
-          <div
-            className="fixed bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-[9999]"
-            style={{
-              left: contextMenu.x,
-              top: contextMenu.y,
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
-              onClick={() => {
-                closeGroupTabs(contextMenu.groupId);
-                closeContextMenu();
-              }}
-            >
-              <svg
-                width="14"
-                height="14"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-              </svg>
-              이 그룹의 모든 탭 닫기
-            </button>
+        {/* 관리자 페이지 하단 상태 바 - 전체화면에서는 숨김 */}
+        {!isFullscreen && (
+          <div className="bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm">
+            <div className="flex items-center space-x-6 text-sm">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-gray-600">시스템 정상</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <svg
+                  className="w-4 h-4 text-blue-500"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-gray-600">
+                  활성 세션: {dockviewRef.current?.panels?.length || 0}개
+                </span>
+              </div>
+              <div className="text-gray-500">|</div>
+              <div className="text-gray-600">
+                총 {developers.length}명의 개발자, {teams.length}개 팀
+              </div>
+            </div>
 
-            <button
-              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
-              onClick={() => {
-                closeOtherTabs(contextMenu.groupId);
-                closeContextMenu();
-              }}
-            >
-              <svg
-                width="14"
-                height="14"
-                fill="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex items-center space-x-4 text-sm text-gray-500">
+              <div className="flex items-center space-x-1">
+                <svg
+                  className="w-4 h-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.415L11 9.586V6z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span>
+                  마지막 업데이트: {new Date().toLocaleTimeString("ko-KR")}
+                </span>
+              </div>
+              <div className="text-gray-400">|</div>
+              <div
+                className="text-blue-600 hover:text-blue-800 cursor-pointer"
+                onClick={() => window.location.reload()}
               >
-                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-              </svg>
-              다른 탭들 닫기
-            </button>
-
-            <hr className="my-1" />
-
-            <button
-              className="w-full px-4 py-2 text-left text-sm hover:bg-blue-50 hover:text-blue-700 flex items-center gap-2"
-              onClick={() => {
-                floatActiveTab(contextMenu.groupId);
-                closeContextMenu();
-              }}
-            >
-              <svg
-                width="14"
-                height="14"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M5,16L3,14L5,12L6.5,13.5L4.75,15.25L12.25,15.25L10.5,13.5L12,12L16,16L12,20L10.5,18.5L12.25,16.75L4.75,16.75L6.5,18.5L5,20L3,18L5,16M15,8L13,6L15,4L16.5,5.5L14.75,7.25L22.25,7.25L20.5,5.5L22,4L24,6L22,8L20.5,6.5L22.25,8.25L14.75,8.25L16.5,9.5L15,11L13,9L15,8Z" />
-              </svg>
-              새 창으로 분리
-            </button>
-
-            <button
-              className="w-full px-4 py-2 text-left text-sm hover:bg-green-50 hover:text-green-700 flex items-center gap-2"
-              onClick={() => {
-                openInNewTab(contextMenu.groupId);
-                closeContextMenu();
-              }}
-            >
-              <svg
-                width="14"
-                height="14"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z" />
-              </svg>
-              새탭 전체화면 열기
-            </button>
+                새로고침
+              </div>
+            </div>
           </div>
         )}
+      </div>
 
-        {/* 세련된 플로팅 뷰 및 헤더 액션 스타일 */}
-        <style>
-          {`
+      {/* 컨텍스트 메뉴 - 전체화면에서는 숨김 */}
+      {contextMenu && !isFullscreen && (
+        <div
+          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-[9999]"
+          style={{
+            left: contextMenu.x,
+            top: contextMenu.y,
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
+            onClick={() => {
+              closeGroupTabs(contextMenu.groupId);
+              closeContextMenu();
+            }}
+          >
+            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+            </svg>
+            이 그룹의 모든 탭 닫기
+          </button>
+
+          <button
+            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
+            onClick={() => {
+              closeOtherTabs(contextMenu.groupId);
+              closeContextMenu();
+            }}
+          >
+            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+            </svg>
+            다른 탭들 닫기
+          </button>
+
+          <hr className="my-1" />
+
+          <button
+            className="w-full px-4 py-2 text-left text-sm hover:bg-blue-50 hover:text-blue-700 flex items-center gap-2"
+            onClick={() => {
+              floatActiveTab(contextMenu.groupId);
+              closeContextMenu();
+            }}
+          >
+            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M5,16L3,14L5,12L6.5,13.5L4.75,15.25L12.25,15.25L10.5,13.5L12,12L16,16L12,20L10.5,18.5L12.25,16.75L4.75,16.75L6.5,18.5L5,20L3,18L5,16M15,8L13,6L15,4L16.5,5.5L14.75,7.25L22.25,7.25L20.5,5.5L22,4L24,6L22,8L20.5,6.5L22.25,8.25L14.75,8.25L16.5,9.5L15,11L13,9L15,8Z" />
+            </svg>
+            새 창으로 분리
+          </button>
+
+          <button
+            className="w-full px-4 py-2 text-left text-sm hover:bg-green-50 hover:text-green-700 flex items-center gap-2"
+            onClick={() => {
+              openInNewTab(contextMenu.groupId);
+              closeContextMenu();
+            }}
+          >
+            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z" />
+            </svg>
+            새탭 전체화면 열기
+          </button>
+        </div>
+      )}
+
+      {/* 세련된 플로팅 뷰 및 헤더 액션 스타일 */}
+      <style>
+        {`
             /* 전체 페이지 여백 제거 */
             * {
               box-sizing: border-box;
@@ -1262,8 +1297,7 @@ export const DevelopersPage: React.FC = () => {
               10%, 90% { opacity: 1; }
             }
           `}
-        </style>
-      </div>
+      </style>
     </div>
   );
 };
