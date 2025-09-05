@@ -4,6 +4,9 @@ import HomePage from "./pages/home/HomePage";
 import AboutPage from "./pages/about/AboutPage";
 import ManualPage from "./pages/manual/ManualPage";
 import TodoPage from "./pages/todo/TodoPage";
+import PlanPage from "./pages/plan/PlanPage";
+import PlanFullstackPage from "./pages/plan-fullstack/PlanFullstackPage";
+import PlanCallcenterPage from "./pages/plan-callcenter/PlanCallcenterPage";
 import DevelopersPage from "./pages/developers/DevelopersPage";
 
 /**
@@ -25,6 +28,9 @@ export default function App() {
           <Route path="about" element={<AboutPage />} />
           <Route path="manual" element={<ManualPage />} />
           <Route path="todo" element={<TodoPage />} />
+          <Route path="plan" element={<PlanPage />} />
+          <Route path="plan-fullstack" element={<PlanFullstackPage />} />
+          <Route path="plan-callcenter" element={<PlanCallcenterPage />} />
           <Route path="developers" element={<DevelopersPage />} />
         </Route>
       </Routes>
