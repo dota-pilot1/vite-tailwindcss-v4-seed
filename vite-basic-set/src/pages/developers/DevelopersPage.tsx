@@ -6,7 +6,6 @@ import {
   type DockviewApi,
   type DockviewWillDropEvent,
   themeLight,
-  themeDark,
 } from "dockview";
 import {
   useDeveloperStore,
