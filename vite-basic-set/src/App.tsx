@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AppLayout from "./widgets/layout/AppLayout";
 
 import AboutPage from "./pages/about/AboutPage";
-import ManualPage from "./pages/manual/ManualPage";
+
 import UserGuidePage from "./pages/user-guide/UserGuidePage";
 import SystemReportPage from "./pages/system-report/SystemReportPage";
 import TodoPage from "./pages/todo/TodoPage";
@@ -48,7 +48,7 @@ export default function App() {
           <Route index element={<DevelopersPage />} />
           <Route path="home" element={<DevelopersPage />} />
           <Route path="about" element={<AboutPage />} />
-          <Route path="manual" element={<ManualPage />} />
+
           <Route path="user-guide" element={<UserGuidePage />} />
           <Route path="system-report" element={<SystemReportPage />} />
           <Route path="todo" element={<TodoPage />} />
