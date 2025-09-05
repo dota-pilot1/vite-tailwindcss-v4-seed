@@ -28,6 +28,8 @@ import UiuxOverviewPage from "./pages/UiuxOverviewPage";
 import ComponentLibrariesPage from "./pages/ComponentLibrariesPage";
 import DevelopmentToolsPage from "./pages/DevelopmentToolsPage";
 import StylingAnimationPage from "./pages/StylingAnimationPage";
+import PilotStarterPage from "./pages/starters/PilotStarterPage";
+import CallbotStarterPage from "./pages/starters/CallbotStarterPage";
 
 /**
  * App.tsx
@@ -75,6 +77,8 @@ export default function App() {
           />
           <Route path="development-tools" element={<DevelopmentToolsPage />} />
           <Route path="styling-animation" element={<StylingAnimationPage />} />
+          <Route path="pilot-starter" element={<PilotStarterPage />} />
+          <Route path="callbot-starter" element={<CallbotStarterPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -21,6 +21,7 @@ import {
   Activity,
   Bookmark,
   BookOpen,
+  Rocket,
 } from "lucide-react";
 import DropdownMenu, {
   type DropdownItem,
@@ -40,6 +41,20 @@ const MENU_GROUPS = {
       label: "개발 일지",
       icon: <BookOpen className="w-4 h-4" />,
       path: "/dev-journal",
+    },
+  ],
+  starters: [
+    {
+      id: "pilot-starter",
+      label: "파일럿 스타터",
+      icon: <Rocket className="w-4 h-4" />,
+      path: "/pilot-starter",
+    },
+    {
+      id: "callbot-starter",
+      label: "콜봇 스타터",
+      icon: <Phone className="w-4 h-4" />,
+      path: "/callbot-starter",
     },
   ],
   challenges: [
@@ -189,6 +204,17 @@ function createDropdownItems(navigate: (path: string) => void): DropdownItem[] {
       })),
     },
     { id: "divider-1", label: "", divider: true },
+    {
+      id: "starters-menu",
+      label: "Starters",
+      children: MENU_GROUPS.starters.map((item) => ({
+        id: item.id,
+        label: item.label,
+        icon: item.icon,
+        onClick: () => navigate(item.path),
+      })),
+    },
+    { id: "divider-2", label: "", divider: true },
     {
       id: "challenges-menu",
       label: "챌린지형 스터디",
@@ -351,6 +377,25 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               }
               items={[
                 ...MENU_GROUPS.main.map((item) => ({
+                  id: item.id,
+                  label: item.label,
+                  icon: item.icon,
+                  onClick: () => handleNavigate(item.path),
+                })),
+              ]}
+              onItemClick={(item) => handleItemSelect(item.id)}
+            />
+
+            {/* Starters */}
+            <DropdownMenu
+              trigger={
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Rocket className="w-4 h-4" />
+                  <span className="text-sm font-medium">Starters</span>
+                </div>
+              }
+              items={[
+                ...MENU_GROUPS.starters.map((item) => ({
                   id: item.id,
                   label: item.label,
                   icon: item.icon,
