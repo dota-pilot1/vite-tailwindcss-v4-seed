@@ -6,7 +6,6 @@ import {
   Settings,
   HelpCircle,
   FileText,
-  Users,
   Home,
   CheckSquare,
   Lightbulb,
