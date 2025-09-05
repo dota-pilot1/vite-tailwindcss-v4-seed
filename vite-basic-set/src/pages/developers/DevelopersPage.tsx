@@ -6,6 +6,7 @@ import {
   type DockviewApi,
   type DockviewWillDropEvent,
   themeLight,
+  themeDark,
 } from "dockview";
 import {
   useDeveloperStore,
@@ -321,7 +322,7 @@ export const DevelopersPage: React.FC = () => {
   // 환영 화면 컴포넌트
   const WelcomePanel: React.FC<{ params?: any }> = () => {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-50 p-6">
+      <div className="h-full flex items-center justify-center bg-white p-6">
         <div className="text-center max-w-md">
           <h3 className="text-2xl font-semibold text-gray-700 mb-4">
             개발자 관리 시스템
@@ -534,13 +535,14 @@ export const DevelopersPage: React.FC = () => {
       // 플로팅 그룹에 세련된 클래스 추가
       groupElement.classList.add("enhanced-floating-group");
 
-      // Dockview의 CSS 변수를 사용한 플로팅 그룹 스타일링
+      // 플로팅 그룹에만 다크 모드 스타일 적용
       groupElement.style.setProperty(
         "--dv-floating-box-shadow",
         "0 25px 50px rgba(0, 0, 0, 0.4), 0 12px 25px rgba(0, 0, 0, 0.25)",
       );
+      groupElement.classList.add("floating-dark-mode");
       groupElement.style.cssText += `
-        border: 4px solid #3b82f6 !important;
+        border: 6px solid #1d4ed8 !important;
         border-radius: 12px !important;
         background: white !important;
         overflow: hidden !important;
@@ -578,13 +580,67 @@ export const DevelopersPage: React.FC = () => {
         }
       }, 100);
 
+      // 강력한 플로팅 그룹 스타일 강제 적용
+      const forceFloatingStyles = () => {
+        console.log("Forcing floating styles for group:", group.id);
+
+        // 모든 가능한 요소들에 강제로 스타일 적용
+        const elements = [
+          groupElement,
+          groupElement.querySelector(".dv-resize-container"),
+          groupElement.querySelector(".dv-groupview"),
+          groupElement.querySelector(".dv-floating-group"),
+        ].filter(Boolean);
+
+        elements.forEach((el, index) => {
+          if (el) {
+            console.log(`Styling element ${index}:`, el.className);
+            el.style.setProperty("border", "8px solid #1d4ed8", "important");
+            el.style.setProperty("border-radius", "16px", "important");
+            el.style.setProperty(
+              "box-shadow",
+              "0 25px 50px rgba(0, 0, 0, 0.5), 0 12px 25px rgba(0, 0, 0, 0.3)",
+              "important",
+            );
+            el.style.setProperty("background", "white", "important");
+
+            // 추가 강제 속성들
+            el.setAttribute("data-floating-styled", "true");
+            el.classList.add("force-floating-border");
+          }
+        });
+
+        // MutationObserver로 지속적으로 감시
+        const observer = new MutationObserver(() => {
+          elements.forEach((el) => {
+            if (el && !el.getAttribute("data-floating-styled")) {
+              el.style.setProperty("border", "8px solid #1d4ed8", "important");
+              el.style.setProperty("border-radius", "16px", "important");
+              el.setAttribute("data-floating-styled", "true");
+            }
+          });
+        });
+
+        observer.observe(groupElement, {
+          attributes: true,
+          childList: true,
+          subtree: true,
+          attributeFilter: ["style", "class"],
+        });
+      };
+
+      // 여러 시점에서 시도
+      setTimeout(forceFloatingStyles, 50);
+      setTimeout(forceFloatingStyles, 200);
+      setTimeout(forceFloatingStyles, 500);
+
       // 더 현대적인 헤더 스타일링 및 버튼 추가
       const header = groupElement.querySelector(
         ".dv-tabs-and-actions-container",
       );
       if (header && !header.querySelector(".floating-actions")) {
         header.style.cssText = `
-          background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+          background: linear-gradient(135deg, #1e293b 0%, #374151 100%);
           color: white;
           border-radius: 8px 8px 0 0;
           padding: 12px 20px;
@@ -592,9 +648,9 @@ export const DevelopersPage: React.FC = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+          border-bottom: 2px solid rgba(96, 165, 250, 0.3);
           backdrop-filter: blur(10px);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         `;
 
         // 더 큰 플로팅 헤더 액션 버튼들 추가
@@ -750,7 +806,9 @@ export const DevelopersPage: React.FC = () => {
   }, [contextMenu]);
 
   return (
-    <div className={`h-screen ${isFullscreen ? "fullscreen-mode" : "flex"}`}>
+    <div
+      className={`h-screen ${isFullscreen ? "fullscreen-mode" : "flex"} m-0 p-0`}
+    >
       {/* 사이드바 토글 버튼 - 전체화면에서는 숨김 */}
       {!sidebarOpen && !isFullscreen && (
         <button
@@ -766,7 +824,7 @@ export const DevelopersPage: React.FC = () => {
 
       {/* 좌측 사이드바 - 전체화면에서는 숨김 */}
       {sidebarOpen && !isFullscreen && (
-        <div className="w-80 bg-gray-50 border-r border-gray-200 overflow-y-auto relative">
+        <div className="w-80 bg-gray-50 border-r border-gray-200 overflow-y-auto relative h-full">
           {/* 사이드바 헤더 */}
           <div className="p-4 border-b border-gray-200 flex justify-between items-center">
             <div>
@@ -800,16 +858,20 @@ export const DevelopersPage: React.FC = () => {
       )}
 
       {/* 메인 콘텐츠 영역 */}
-      <div className={`${isFullscreen ? "w-full h-full" : "flex-1"} bg-white`}>
-        <DockviewReact
-          onReady={onReady}
-          theme={themeLight}
-          onWillDrop={handleWillDrop}
-          components={{
-            welcomePanel: WelcomePanel,
-            developerEditPanel: DeveloperEditPanel,
-          }}
-        />
+      <div
+        className={`${isFullscreen ? "w-full h-full" : "flex-1 h-full"} bg-gray-50`}
+      >
+        <div className={`${isFullscreen ? "" : "p-4"} h-full`}>
+          <DockviewReact
+            onReady={onReady}
+            theme={themeLight}
+            onWillDrop={handleWillDrop}
+            components={{
+              welcomePanel: WelcomePanel,
+              developerEditPanel: DeveloperEditPanel,
+            }}
+          />
+        </div>
 
         {/* 컨텍스트 메뉴 - 전체화면에서는 숨김 */}
         {contextMenu && !isFullscreen && (
@@ -900,6 +962,17 @@ export const DevelopersPage: React.FC = () => {
         {/* 세련된 플로팅 뷰 및 헤더 액션 스타일 */}
         <style>
           {`
+            /* 전체 페이지 여백 제거 */
+            * {
+              box-sizing: border-box;
+            }
+
+            html, body, #root {
+              margin: 0;
+              padding: 0;
+              height: 100%;
+              width: 100%;
+            }
             /* 컨텍스트 메뉴 애니메이션 */
             .fixed {
               animation: contextMenuFadeIn 0.15s ease-out;
@@ -1101,18 +1174,51 @@ export const DevelopersPage: React.FC = () => {
               backdrop-filter: blur(10px);
             }
 
-            /* Dockview 플로팅 그룹 커스터마이징 */
+            /* 더 강력한 플로팅 그룹 커스터마이징 */
             .dv-floating-group {
-              --dv-floating-box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 0 12px 25px rgba(0, 0, 0, 0.25) !important;
+              --dv-floating-box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6) !important;
               min-width: min(900px, 60vw) !important;
               min-height: min(600px, 60vh) !important;
+              filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.4))
+                      drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3)) !important;
             }
 
-            .dv-floating-group .dv-resize-container {
-              border: 4px solid #3b82f6 !important;
+            /* 플로팅 그룹 강력한 윤곽선 */
+            .dv-floating-group .dv-resize-container,
+            .floating-dark-mode .dv-resize-container {
+              border: 8px solid #1d4ed8 !important;
               border-radius: 12px !important;
               background: white !important;
-              box-shadow: var(--dv-floating-box-shadow) !important;
+              box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6),
+                          0 15px 30px rgba(0, 0, 0, 0.4),
+                          0 5px 15px rgba(0, 0, 0, 0.3),
+                          0 0 0 3px rgba(29, 78, 216, 0.4) !important;
+              color: inherit !important;
+            }
+
+            /* 매우 강력한 강제 스타일 */
+            .dv-floating-group > .dv-resize-container,
+            .force-floating-border,
+            [data-floating-styled="true"] {
+              border: 8px solid #1d4ed8 !important;
+              border-radius: 16px !important;
+              box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 12px 25px rgba(0, 0, 0, 0.3) !important;
+              background: white !important;
+            }
+
+            /* 모든 Dockview 스타일 오버라이드 */
+            *[class*="dv-floating"],
+            *[class*="floating-dark-mode"] {
+              border: 8px solid #1d4ed8 !important;
+              box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5) !important;
+            }
+
+            .floating-dark-mode .dv-groupview {
+              background: white !important;
+            }
+
+            .floating-dark-mode .dv-content {
+              background: white !important;
             }
 
             .enhanced-floating-group {

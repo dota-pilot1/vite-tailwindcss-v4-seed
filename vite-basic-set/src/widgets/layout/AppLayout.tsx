@@ -22,8 +22,7 @@ export interface AppLayoutProps {
  * - 필요 시 후속 단계에서 padding / 배경 / 다크모드 토큰 치환 한 곳에서 처리
  */
 function PageContainer({ children }: { children?: React.ReactNode }) {
-  const base =
-    "flex-1 overflow-auto bg-gradient-to-b from-white to-gray-50 p-6";
+  const base = "flex-1 overflow-auto bg-gradient-to-b from-white to-gray-50";
   return (
     <main role="main" className={base}>
       {children ?? <Outlet />}
