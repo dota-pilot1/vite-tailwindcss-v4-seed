@@ -50,7 +50,7 @@ const DeveloperTreeMenu: React.FC<DeveloperTreeMenuProps> = ({
   const getLevelColor = (level: string) => {
     switch (level) {
       case "Lead":
-        return "text-purple-600";
+        return "text-slate-600";
       case "Senior":
         return "text-blue-600";
       case "Middle":

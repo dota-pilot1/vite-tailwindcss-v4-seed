@@ -286,7 +286,7 @@ function Section({
 function DirRow({ path, desc }: { path: string; desc: string }) {
   return (
     <tr className="border-b last:border-none">
-      <td className="align-top py-2 font-mono text-xs text-indigo-600">
+      <td className="align-top py-2 font-mono text-xs text-slate-600">
         {path}
       </td>
       <td className="py-2 text-[13px] text-gray-700">{desc}</td>

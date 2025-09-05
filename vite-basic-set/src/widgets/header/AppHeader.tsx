@@ -1,68 +1,206 @@
 import type React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import TopBar from "../../design-system/vercel-ui/layout/TopBar";
-import PrimaryNav, {
-  type PrimaryNavItem,
-} from "../../design-system/vercel-ui/navigation/PrimaryNav";
-import SimpleNav from "../../design-system/modern-seek/SimpleNav";
+import {
+  Menu,
+  User,
+  Settings,
+  HelpCircle,
+  FileText,
+  Users,
+  Home,
+  CheckSquare,
+  Lightbulb,
+  Code2,
+  Phone,
+  Book,
+} from "lucide-react";
+import DropdownMenu, {
+  type DropdownItem,
+} from "../../design-system/modern-ui/DropdownMenu";
 
-const NAV_ITEMS: PrimaryNavItem[] = [
-  { id: "developers", label: "개발자 관리" },
-  { id: "home", label: "Home" },
-  { id: "about", label: "About" },
-  { id: "manual", label: "Manual" },
-  { id: "todo", label: "Todo" },
-  { id: "plan-fullstack", label: "풀스택 과제" },
-  { id: "plan-callcenter", label: "콜센터 과제" },
-];
+// 메뉴 그룹 정의
+const MENU_GROUPS = {
+  main: [
+    {
+      id: "developers",
+      label: "개발자 관리",
+      icon: <Users className="w-4 h-4" />,
+      path: "/developers",
+    },
+    {
+      id: "home",
+      label: "대시보드",
+      icon: <Home className="w-4 h-4" />,
+      path: "/home",
+    },
+    {
+      id: "todo",
+      label: "할일 관리",
+      icon: <CheckSquare className="w-4 h-4" />,
+      path: "/todo",
+    },
+  ],
+  challenges: [
+    {
+      id: "fullstack-challenge",
+      label: "풀스택 챌린지",
+      icon: <Code2 className="w-4 h-4" />,
+      path: "/fullstack-challenge",
+    },
+    {
+      id: "plan-fullstack",
+      label: "풀스택 프로젝트",
+      icon: <Code2 className="w-4 h-4" />,
+      path: "/plan-fullstack",
+    },
+    {
+      id: "plan-callcenter",
+      label: "콜센터 챌린지",
+      icon: <Phone className="w-4 h-4" />,
+      path: "/plan-callcenter",
+    },
+  ],
+  ideas: [
+    {
+      id: "startup-idea",
+      label: "바이브 코딩",
+      icon: <Lightbulb className="w-4 h-4" />,
+      path: "/startup-idea",
+    },
+  ],
+  system: [
+    {
+      id: "manual",
+      label: "시스템 매뉴얼",
+      icon: <FileText className="w-4 h-4" />,
+      path: "/manual",
+    },
+    {
+      id: "user-guide",
+      label: "사용자 가이드",
+      icon: <Book className="w-4 h-4" />,
+      path: "/user-guide",
+    },
+    {
+      id: "system-report",
+      label: "시스템 리포트",
+      icon: <HelpCircle className="w-4 h-4" />,
+      path: "/system-report",
+    },
+    {
+      id: "about",
+      label: "정보",
+      icon: <HelpCircle className="w-4 h-4" />,
+      path: "/about",
+    },
+  ],
+};
 
-/* 경로 → 활성 nav id 매핑 유틸 (간단 규칙 기반) */
+/* 경로 → 활성 nav id 매핑 유틸 */
 function deriveActiveId(pathname: string): string {
   if (pathname.startsWith("/developers")) return "developers";
   if (pathname.startsWith("/about")) return "about";
   if (pathname.startsWith("/manual")) return "manual";
+  if (pathname.startsWith("/user-guide")) return "user-guide";
+  if (pathname.startsWith("/system-report")) return "system-report";
   if (pathname.startsWith("/todo")) return "todo";
+  if (pathname.startsWith("/fullstack-challenge")) return "fullstack-challenge";
   if (pathname.startsWith("/plan-fullstack")) return "plan-fullstack";
   if (pathname.startsWith("/plan-callcenter")) return "plan-callcenter";
+  if (pathname.startsWith("/startup-idea")) return "startup-idea";
   if (pathname.startsWith("/home")) return "home";
-  return "developers"; // 기본값을 개발자 관리로 변경
+  return "developers";
 }
 
 /* ---------------------------------- */
-/* Placeholder (우측 기능들 임시구현)   */
+/* 드롭다운 메뉴 아이템 생성             */
 /* ---------------------------------- */
 
-/**
- * ThemeTogglePlaceholder
- * - 실제 다크모드 구현 전까지 자리표시자
- * - 추후 features/theme-toggle 로 이동
- */
+function createDropdownItems(navigate: (path: string) => void): DropdownItem[] {
+  return [
+    {
+      id: "main-menu",
+      label: "주요 기능",
+      children: MENU_GROUPS.main.map((item) => ({
+        id: item.id,
+        label: item.label,
+        icon: item.icon,
+        onClick: () => navigate(item.path),
+      })),
+    },
+    { id: "divider-1", label: "", divider: true },
+    {
+      id: "challenges-menu",
+      label: "프로젝트 챌린지",
+      children: MENU_GROUPS.challenges.map((item) => ({
+        id: item.id,
+        label: item.label,
+        icon: item.icon,
+        onClick: () => navigate(item.path),
+      })),
+    },
+    { id: "divider-2", label: "", divider: true },
+    {
+      id: "ideas-menu",
+      label: "창업 아이디어",
+      children: MENU_GROUPS.ideas.map((item) => ({
+        id: item.id,
+        label: item.label,
+        icon: item.icon,
+        onClick: () => navigate(item.path),
+      })),
+    },
+    { id: "divider-3", label: "", divider: true },
+    {
+      id: "system-menu",
+      label: "시스템",
+      children: MENU_GROUPS.system.map((item) => ({
+        id: item.id,
+        label: item.label,
+        icon: item.icon,
+        onClick: () => navigate(item.path),
+      })),
+    },
+  ];
+}
+
+/* ---------------------------------- */
+/* Placeholder Components             */
+/* ---------------------------------- */
+
 function ThemeTogglePlaceholder() {
   return (
     <button
       type="button"
-      className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-600 hover:bg-gray-50"
+      className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
       aria-label="테마 전환 (미구현)"
     >
-      Theme
+      <Settings className="w-4 h-4" />
     </button>
   );
 }
 
-/**
- * UserMenuPlaceholder
- * - 추후 features/account-menu 로 교체
- */
 function UserMenuPlaceholder() {
+  const userMenuItems: DropdownItem[] = [
+    { id: "profile", label: "프로필", icon: <User className="w-4 h-4" /> },
+    { id: "settings", label: "설정", icon: <Settings className="w-4 h-4" /> },
+    { id: "divider", label: "", divider: true },
+    { id: "logout", label: "로그아웃" },
+  ];
+
   return (
-    <div className="flex items-center gap-2">
-      <span className="h-6 w-6 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 text-[10px] font-semibold flex items-center justify-center text-white">
-        U
-      </span>
-      <span className="hidden text-xs text-gray-600 sm:inline">
-        user@example.com
-      </span>
-    </div>
+    <DropdownMenu
+      trigger={
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center">
+            <User className="w-4 h-4 text-white" />
+          </div>
+          <span className="hidden text-sm text-gray-700 sm:inline">관리자</span>
+        </div>
+      }
+      items={userMenuItems}
+      align="right"
+    />
   );
 }
 
@@ -71,155 +209,102 @@ function UserMenuPlaceholder() {
 /* ---------------------------------- */
 
 export interface AppHeaderProps {
-  /**
-   * 외부에서 활성 항목을 강제로 지정하고 싶은 경우
-   * (없으면 location.pathname 기반 자동 계산)
-   */
   activeIdOverride?: string;
-  /**
-   * 네비게이션 항목 교체 (기본값 NAV_ITEMS)
-   * - 페이지/권한/실험 플래그에 따라 동적 생성 가능
-   */
-  navItems?: PrimaryNavItem[];
-  /**
-   * 커스텀 항목 선택 처리 (라우터 이동 외 추가 동작)
-   * - return false 를 하면 기본 라우트 이동을 막을 수 있음
-   */
-  onItemSelect?(
-    item: PrimaryNavItem,
-    event?: React.MouseEvent | React.KeyboardEvent,
-  ): boolean | void;
-  /**
-   * 헤더 좌측 로고/프로젝트 스위처 자리에 커스텀 요소 삽입
-   */
+  onItemSelect?(id: string): void;
   leftSlot?: React.ReactNode;
-  /**
-   * 헤더 우측 기능 영역 커스터마이즈
-   * (전달되면 기본 placeholder 들을 대체)
-   */
   rightSlot?: React.ReactNode;
-  /**
-   * TopBar 추가 클래스
-   */
   className?: string;
-  /**
-   * modern-seek (모던 시크) 스타일 강제 적용 여부
-   * true 면 SimpleNav, false 면 기존 vercel 스타일 PrimaryNav
-   */
-  forceSimpleStyle?: boolean;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
   activeIdOverride,
-  navItems = NAV_ITEMS,
   onItemSelect,
   leftSlot,
   rightSlot,
-  className,
-  forceSimpleStyle = true, // 기본: modern-seek 스타일 적용
+  className = "",
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  /* 현재 경로 기반 활성 id (외부 override 우선) */
   const activeId = activeIdOverride ?? deriveActiveId(location.pathname);
 
-  /* 선택 시 라우팅 */
-  const handleSelect = (
-    item: PrimaryNavItem,
-    e?: React.MouseEvent | React.KeyboardEvent,
-  ): void => {
-    const result = onItemSelect?.(item, e);
-    if (result === false) return;
-    switch (item.id) {
-      case "developers":
-        navigate("/developers");
-        break;
-      case "about":
-        navigate("/about");
-        break;
-      case "manual":
-        navigate("/manual");
-        break;
-      case "todo":
-        navigate("/todo");
-        break;
-      case "plan-fullstack":
-        navigate("/plan-fullstack");
-        break;
-      case "plan-callcenter":
-        navigate("/plan-callcenter");
-        break;
-      case "home":
-        navigate("/");
-        break;
-      default:
-        navigate("/developers"); // 기본값을 개발자 관리로 변경
-        break;
+  const handleNavigate = (path: string) => {
+    navigate(path);
+  };
+
+  const handleItemSelect = (id: string) => {
+    if (onItemSelect) {
+      onItemSelect(id);
     }
   };
 
-  /* center: modern-seek 구성 or 기존 vercel-ui 구성 */
-  const center = forceSimpleStyle ? (
-    <SimpleNav
-      items={navItems.map((n) => ({ id: n.id, label: n.label }))}
-      activeId={activeId}
-      onSelect={(it) => {
-        // SimpleNavItem -> PrimaryNavItem 호환 (id 기반)
-        const target = navItems.find((n) => n.id === it.id) || navItems[0];
-        handleSelect(target);
-      }}
-      intensity="bold"
-      size="md"
-    />
-  ) : (
-    <PrimaryNav
-      items={navItems}
-      activeId={activeId}
-      onSelect={handleSelect}
-      variant="underline"
-      size="md"
-    />
-  );
+  const dropdownItems = createDropdownItems(handleNavigate);
 
-  /* 우측 영역 (커스텀 없으면 placeholder) */
-  const right = rightSlot || (
-    <div className="flex items-center gap-2">
-      <ThemeTogglePlaceholder />
-      <UserMenuPlaceholder />
-    </div>
-  );
+  // 현재 활성 메뉴의 정보 찾기
+  const getCurrentMenuItem = () => {
+    for (const group of Object.values(MENU_GROUPS)) {
+      const found = group.find((item) => item.id === activeId);
+      if (found) return found;
+    }
+    return MENU_GROUPS.main[0]; // 기본값
+  };
 
-  /* 좌측 (로고 + 외부 slot 혼합) */
-  const left = (
-    <div className="flex items-center gap-3">
-      <Logo />
-      {leftSlot}
-    </div>
-  );
+  const currentItem = getCurrentMenuItem();
 
   return (
-    <TopBar
-      left={left}
-      center={center}
-      right={right}
-      translucent
-      border
-      shadow={false}
-      className={className}
-    />
+    <header
+      className={`bg-white border-b border-gray-200 shadow-sm ${className}`}
+    >
+      <div className="flex items-center justify-between h-16 px-6">
+        {/* 좌측 영역 */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">S</span>
+              </div>
+              <span className="text-lg font-bold text-gray-900 tracking-tight">
+                SuperUI Admin
+              </span>
+            </div>
+          </div>
+          {leftSlot}
+        </div>
+
+        {/* 중앙 영역 - 네비게이션 */}
+        <div className="flex items-center gap-4">
+          <DropdownMenu
+            trigger={
+              <div className="flex items-center gap-2">
+                <Menu className="w-4 h-4" />
+                <span className="text-sm font-medium">메뉴</span>
+              </div>
+            }
+            items={dropdownItems}
+            onItemClick={(item) => handleItemSelect(item.id)}
+          />
+
+          {/* 현재 페이지 표시 */}
+          <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
+            {currentItem.icon}
+            <span className="text-sm font-medium text-gray-700">
+              {currentItem.label}
+            </span>
+          </div>
+        </div>
+
+        {/* 우측 영역 */}
+        <div className="flex items-center gap-3">
+          {rightSlot || (
+            <>
+              <ThemeTogglePlaceholder />
+              <UserMenuPlaceholder />
+            </>
+          )}
+        </div>
+      </div>
+    </header>
   );
 };
-
-/**
- * 간단한 로고 컴포넌트 — 추후 design-system primitives 로 이동 가능
- */
-function Logo() {
-  return (
-    <span className="text-sm font-bold tracking-tight text-indigo-600 select-none">
-      SuperUI
-    </span>
-  );
-}
 
 export default AppHeader;

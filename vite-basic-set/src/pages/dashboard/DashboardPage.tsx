@@ -26,7 +26,7 @@ export const DashboardPage: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-md p-6">
           <h3 className="text-lg font-semibold text-gray-600">전환율</h3>
-          <p className="text-3xl font-bold text-purple-600">3.24%</p>
+          <p className="text-3xl font-bold text-slate-600">3.24%</p>
           <p className="text-sm text-green-500">+0.5% from last month</p>
         </div>
       </div>

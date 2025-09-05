@@ -100,19 +100,19 @@ function baseItemClasses(
     options.size === "sm" ? "h-8 px-3 text-[12px]" : "h-9 px-3.5 text-xs";
   const roundCls = options.rounded ? "rounded-md" : "rounded";
   const common =
-    "inline-flex items-center gap-1 font-medium select-none whitespace-nowrap transition outline-none focus-visible:ring-2 focus-visible:ring-indigo-500";
+    "inline-flex items-center gap-1 font-medium select-none whitespace-nowrap transition outline-none focus-visible:ring-2 focus-visible:ring-slate-500";
   const state = disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer";
   const variantMap: Record<string, string> = {
     solid: active
-      ? "bg-indigo-600 text-white shadow-sm"
+      ? "bg-slate-600 text-white shadow-sm"
       : "text-gray-600 hover:bg-gray-100",
     underline: cx(
       active
-        ? "text-indigo-600"
+        ? "text-slate-600"
         : "text-gray-600 hover:text-gray-800 hover:bg-gray-50",
       "relative",
       active &&
-        "after:absolute after:inset-x-2 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-indigo-500",
+        "after:absolute after:inset-x-2 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-slate-500",
     ),
     ghost: active
       ? "bg-gray-100 text-gray-800"

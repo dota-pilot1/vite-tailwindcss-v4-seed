@@ -240,7 +240,7 @@ const getDifficultyColor = (difficulty: Challenge["difficulty"]) => {
     case "중급":
       return "bg-blue-100 text-blue-800 border-blue-200";
     case "고급":
-      return "bg-purple-100 text-purple-800 border-purple-200";
+      return "bg-slate-100 text-slate-800 border-slate-200";
     case "Level 1":
       return "bg-emerald-100 text-emerald-800 border-emerald-200";
     case "Level 2":
@@ -248,7 +248,7 @@ const getDifficultyColor = (difficulty: Challenge["difficulty"]) => {
     case "Level 3":
       return "bg-indigo-100 text-indigo-800 border-indigo-200";
     case "Level 4":
-      return "bg-violet-100 text-violet-800 border-violet-200";
+      return "bg-slate-100 text-slate-800 border-slate-200";
     case "Level 5":
       return "bg-rose-100 text-rose-800 border-rose-200";
     default:
@@ -559,10 +559,10 @@ const PlanPage: React.FC = () => {
             </div>
             <div className="p-4 bg-white rounded-lg shadow-sm border">
               <div className="flex items-center">
-                <div className="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
+                <div className="w-3 h-3 bg-slate-500 rounded-full mr-2"></div>
                 <h3 className="font-medium text-gray-900">고급 과제</h3>
               </div>
-              <p className="text-2xl font-bold text-purple-600 mt-1">
+              <p className="text-2xl font-bold text-slate-600 mt-1">
                 {advancedChallenges.length}개
               </p>
               <p className="text-sm text-gray-500">전문가 수준</p>
@@ -575,7 +575,7 @@ const PlanPage: React.FC = () => {
                 const levelChallenges = currentChallenges.filter(
                   (c) => c.difficulty === level,
                 );
-                const colors = ["emerald", "cyan", "indigo", "violet", "rose"];
+                const colors = ["emerald", "cyan", "blue", "slate", "rose"];
                 const descriptions = [
                   "기초 PBX",
                   "중급 기능",
@@ -771,11 +771,9 @@ const PlanPage: React.FC = () => {
                   실무 기술을 익히는 단계입니다.
                 </p>
               </div>
-              <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                <h3 className="font-semibold text-purple-800 mb-2">
-                  고급 단계
-                </h3>
-                <p className="text-sm text-purple-700">
+              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <h3 className="font-semibold text-slate-800 mb-2">고급 단계</h3>
+                <p className="text-sm text-slate-700">
                   전문가 수준의 기술을 습득하는 단계입니다.
                 </p>
               </div>

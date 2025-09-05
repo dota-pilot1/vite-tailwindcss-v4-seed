@@ -92,15 +92,15 @@ export default function HomePage() {
       {/* 다음 단계 */}
       <section
         aria-labelledby="home-next-title"
-        className="space-y-4 rounded-lg border border-indigo-200 bg-indigo-50/60 p-6 shadow-sm"
+        className="space-y-4 rounded-lg border border-slate-200 bg-slate-50/60 p-6 shadow-sm"
       >
         <h2
           id="home-next-title"
-          className="text-lg font-semibold text-indigo-700"
+          className="text-lg font-semibold text-slate-700"
         >
           추천 다음 단계
         </h2>
-        <ul className="list-disc space-y-1 pl-5 text-sm text-indigo-800">
+        <ul className="list-disc space-y-1 pl-5 text-sm text-slate-800">
           <li>React Router 또는 TanStack Router 도입</li>
           <li>디렉토리 정교화: entities / features / shared 분리</li>
           <li>공용 UI 컴포넌트 계층(shared/ui 또는 components) 정의</li>
@@ -108,8 +108,8 @@ export default function HomePage() {
           <li>테스트 도입: 유틸 → 컴포넌트 → 통합 순</li>
           <li>빌드/품질 자동화(CI, lint, type-check, preview 배포)</li>
         </ul>
-        <p className="text-[13px] text-indigo-600">
-          “지금 반드시 필요하지 않은 것”은 과감히 미루되,
+        <p className="text-[13px] text-slate-600">
+          "지금 반드시 필요하지 않은 것"은 과감히 미루되,
           <span className="font-medium">&nbsp;미룬 이유와 기준은 문서화</span>
           한다.
         </p>
