@@ -24,6 +24,10 @@ import RedisUsagePage from "./pages/RedisUsagePage";
 import RedisStudyPage from "./pages/RedisStudyPage";
 import RedisSpringPage from "./pages/RedisSpringPage";
 import RedisKafkaPage from "./pages/RedisKafkaPage";
+import UiuxOverviewPage from "./pages/UiuxOverviewPage";
+import ComponentLibrariesPage from "./pages/ComponentLibrariesPage";
+import DevelopmentToolsPage from "./pages/DevelopmentToolsPage";
+import StylingAnimationPage from "./pages/StylingAnimationPage";
 
 /**
  * App.tsx
@@ -64,6 +68,13 @@ export default function App() {
           <Route path="redis-study" element={<RedisStudyPage />} />
           <Route path="redis-spring" element={<RedisSpringPage />} />
           <Route path="redis-kafka" element={<RedisKafkaPage />} />
+          <Route path="uiux-overview" element={<UiuxOverviewPage />} />
+          <Route
+            path="component-libraries"
+            element={<ComponentLibrariesPage />}
+          />
+          <Route path="development-tools" element={<DevelopmentToolsPage />} />
+          <Route path="styling-animation" element={<StylingAnimationPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

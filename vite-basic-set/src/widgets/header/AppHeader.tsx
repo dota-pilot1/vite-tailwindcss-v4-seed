@@ -5,14 +5,11 @@ import {
   User,
   Users,
   Settings,
-  HelpCircle,
-  FileText,
   Home,
   CheckSquare,
   Lightbulb,
   Code2,
   Phone,
-  Book,
   Server,
   Shield,
   Zap,
@@ -147,30 +144,30 @@ const MENU_GROUPS = {
       path: "/redis-kafka",
     },
   ],
-  system: [
+  uiuxSkills: [
     {
-      id: "manual",
-      label: "시스템 매뉴얼",
-      icon: <FileText className="w-4 h-4" />,
-      path: "/manual",
+      id: "uiux-overview",
+      label: "UI/UX 개요",
+      icon: <Layers className="w-4 h-4" />,
+      path: "/uiux-overview",
     },
     {
-      id: "user-guide",
-      label: "사용자 가이드",
-      icon: <Book className="w-4 h-4" />,
-      path: "/user-guide",
+      id: "component-libraries",
+      label: "컴포넌트 라이브러리",
+      icon: <Code2 className="w-4 h-4" />,
+      path: "/component-libraries",
     },
     {
-      id: "system-report",
-      label: "시스템 리포트",
-      icon: <HelpCircle className="w-4 h-4" />,
-      path: "/system-report",
+      id: "development-tools",
+      label: "개발 도구",
+      icon: <Settings className="w-4 h-4" />,
+      path: "/development-tools",
     },
     {
-      id: "about",
-      label: "정보",
-      icon: <HelpCircle className="w-4 h-4" />,
-      path: "/about",
+      id: "styling-animation",
+      label: "스타일링 & 애니메이션",
+      icon: <Zap className="w-4 h-4" />,
+      path: "/styling-animation",
     },
   ],
 };
@@ -226,9 +223,9 @@ function createDropdownItems(navigate: (path: string) => void): DropdownItem[] {
     },
     { id: "divider-4", label: "", divider: true },
     {
-      id: "system-menu",
-      label: "시스템",
-      children: MENU_GROUPS.system.map((item) => ({
+      id: "uiux-skills-menu",
+      label: "UI/UX 생태계",
+      children: MENU_GROUPS.uiuxSkills.map((item) => ({
         id: item.id,
         label: item.label,
         icon: item.icon,
@@ -420,16 +417,16 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               onItemClick={(item) => handleItemSelect(item.id)}
             />
 
-            {/* 시스템 */}
+            {/* UI/UX 생태계 */}
             <DropdownMenu
               trigger={
                 <div className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Settings className="w-4 h-4" />
-                  <span className="text-sm font-medium">시스템</span>
+                  <Layers className="w-4 h-4" />
+                  <span className="text-sm font-medium">UI/UX 생태계</span>
                 </div>
               }
               items={[
-                ...MENU_GROUPS.system.map((item) => ({
+                ...MENU_GROUPS.uiuxSkills.map((item) => ({
                   id: item.id,
                   label: item.label,
                   icon: item.icon,
