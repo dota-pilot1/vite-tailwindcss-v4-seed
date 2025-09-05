@@ -39,7 +39,7 @@ const ManualPage: React.FC = () => {
               📋 프로젝트 기본 설정
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-              <ConfigItem label="Project" value="Maven" />
+              <ConfigItem label="Project" value="Gradle" />
               <ConfigItem label="Language" value="Java" />
               <ConfigItem label="Spring Boot" value="3.2.0" />
               <ConfigItem label="Group" value="com.example" />
@@ -66,7 +66,6 @@ const ManualPage: React.FC = () => {
                 "Spring Boot DevTools",
                 "Lombok",
                 "Spring Boot Actuator",
-                "Spring Data Redis",
               ].map((dep) => (
                 <DepItem key={dep} name={dep} />
               ))}
@@ -84,7 +83,7 @@ const ManualPage: React.FC = () => {
               id="springUrl"
               className="p-4 bg-white rounded-lg border border-blue-300 text-gray-800 font-mono break-all text-sm"
             >
-              https://start.spring.io/#!type=maven-project&language=java&platformVersion=3.2.0&packaging=jar&jvmVersion=17&groupId=com.example&artifactId=chatbot-service&name=chatbot-service&description=WebSocket%20STOMP%20Chat%20and%20CallBot%20Service&packageName=com.example.chatbot&dependencies=web,websocket,data-jpa,mysql,security,validation,devtools,lombok,actuator,data-redis
+              https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.2.0&packaging=jar&jvmVersion=17&groupId=com.example&artifactId=chatbot-service&name=chatbot-service&description=WebSocket%20STOMP%20Chat%20and%20CallBot%20Service&packageName=com.example.chatbot&dependencies=web,websocket,data-jpa,mysql,security,validation,devtools,lombok,actuator
             </div>
             <button
               id="copyBtn"
