@@ -60,12 +60,13 @@ const ManualPage: React.FC = () => {
                 "Spring Web",
                 "WebSocket",
                 "Spring Data JPA",
-                "MySQL Driver",
+                "PostgreSQL Driver",
                 "Spring Security",
                 "Validation",
                 "Spring Boot DevTools",
                 "Lombok",
                 "Spring Boot Actuator",
+                "Spring Data Redis",
               ].map((dep) => (
                 <DepItem key={dep} name={dep} />
               ))}
@@ -83,7 +84,7 @@ const ManualPage: React.FC = () => {
               id="springUrl"
               className="p-4 bg-white rounded-lg border border-blue-300 text-gray-800 font-mono break-all text-sm"
             >
-              https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.2.0&packaging=jar&jvmVersion=17&groupId=com.example&artifactId=chatbot-service&name=chatbot-service&description=WebSocket%20STOMP%20Chat%20and%20CallBot%20Service&packageName=com.example.chatbot&dependencies=web,websocket,data-jpa,mysql,security,validation,devtools,lombok,actuator
+              https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.2.0&packaging=jar&jvmVersion=17&groupId=com.example&artifactId=chatbot-service&name=chatbot-service&description=WebSocket%20STOMP%20Chat%20and%20CallBot%20Service&packageName=com.example.chatbot&dependencies=web,websocket,data-jpa,postgresql,security,validation,devtools,lombok,actuator,data-redis
             </div>
             <button
               id="copyBtn"
