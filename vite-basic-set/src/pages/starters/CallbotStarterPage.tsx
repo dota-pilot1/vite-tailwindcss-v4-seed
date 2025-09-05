@@ -49,7 +49,7 @@ const CallbotStarterPage: React.FC = () => {
               📋 프로젝트 기본 설정
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-              <ConfigItem label="Project" value="Maven" />
+              <ConfigItem label="Project" value="Gradle" />
               <ConfigItem label="Language" value="Java" />
               <ConfigItem label="Spring Boot" value="3.5.5" />
               <ConfigItem label="Group" value="com.example" />
@@ -96,7 +96,7 @@ const CallbotStarterPage: React.FC = () => {
               id="springUrl"
               className="p-4 bg-white rounded-lg border border-blue-300 text-gray-800 font-mono break-all text-sm"
             >
-              https://start.spring.io/#!type=maven-project&language=java&platformVersion=3.5.5&packaging=jar&jvmVersion=21&groupId=com.example&artifactId=chatbot-service&name=chatbot-service&description=WebSocket%20STOMP%20Chat%20and%20CallBot%20Service&packageName=com.example.chatbot&dependencies=web,websocket,data-jpa,postgresql,security,validation,devtools,lombok,actuator,data-redis,jooq,openai
+              https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.5.5&packaging=jar&jvmVersion=21&groupId=com.example&artifactId=chatbot-service&name=chatbot-service&description=WebSocket%20STOMP%20Chat%20and%20CallBot%20Service&packageName=com.example.chatbot&dependencies=web,websocket,data-jpa,postgresql,security,validation,devtools,lombok,actuator,data-redis,jooq
             </div>
             <div className="mt-4 flex items-center gap-4">
               <button
