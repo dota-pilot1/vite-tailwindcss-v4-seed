@@ -1,8 +1,9 @@
 import type React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Menu,
   User,
+  Users,
   Settings,
   HelpCircle,
   FileText,
@@ -12,6 +13,17 @@ import {
   Code2,
   Phone,
   Book,
+  Server,
+  Shield,
+  Zap,
+  Database,
+  Layers,
+  Coffee,
+  Network,
+  HardDrive,
+  Activity,
+  Bookmark,
+  BookOpen,
 } from "lucide-react";
 import DropdownMenu, {
   type DropdownItem,
@@ -21,25 +33,19 @@ import DropdownMenu, {
 const MENU_GROUPS = {
   main: [
     {
-      id: "home",
-      label: "대시보드",
-      icon: <Home className="w-4 h-4" />,
-      path: "/home",
-    },
-    {
       id: "todo",
       label: "할일 관리",
       icon: <CheckSquare className="w-4 h-4" />,
       path: "/todo",
     },
+    {
+      id: "dev-journal",
+      label: "개발 일지",
+      icon: <BookOpen className="w-4 h-4" />,
+      path: "/dev-journal",
+    },
   ],
   challenges: [
-    {
-      id: "fullstack-challenge",
-      label: "풀스택 챌린지",
-      icon: <Code2 className="w-4 h-4" />,
-      path: "/fullstack-challenge",
-    },
     {
       id: "plan-fullstack",
       label: "풀스택 프로젝트",
@@ -52,13 +58,93 @@ const MENU_GROUPS = {
       icon: <Phone className="w-4 h-4" />,
       path: "/plan-callcenter",
     },
-  ],
-  ideas: [
     {
       id: "startup-idea",
       label: "바이브 코딩",
       icon: <Lightbulb className="w-4 h-4" />,
       path: "/startup-idea",
+    },
+    {
+      id: "dev-journal",
+      label: "개발 일지",
+      icon: <BookOpen className="w-4 h-4" />,
+      path: "/dev-journal",
+    },
+  ],
+  siSkills: [
+    {
+      id: "spring-security",
+      label: "Spring Security",
+      icon: <Shield className="w-4 h-4" />,
+      path: "/spring-security",
+    },
+    {
+      id: "spring-websocket",
+      label: "Spring WebSocket STOMP",
+      icon: <Network className="w-4 h-4" />,
+      path: "/spring-websocket",
+    },
+    {
+      id: "spring-ai",
+      label: "Spring AI",
+      icon: <Zap className="w-4 h-4" />,
+      path: "/spring-ai",
+    },
+    {
+      id: "spring-jpa-jooq",
+      label: "Spring JPA with jOOQ",
+      icon: <Database className="w-4 h-4" />,
+      path: "/spring-jpa-jooq",
+    },
+    {
+      id: "spring-webflux",
+      label: "Spring WebFlux",
+      icon: <Layers className="w-4 h-4" />,
+      path: "/spring-webflux",
+    },
+    {
+      id: "spring-java21",
+      label: "Spring Java 21 문법",
+      icon: <Coffee className="w-4 h-4" />,
+      path: "/spring-java21",
+    },
+    {
+      id: "spring-graphql",
+      label: "Spring with GraphQL",
+      icon: <Server className="w-4 h-4" />,
+      path: "/spring-graphql",
+    },
+  ],
+  redisSkills: [
+    {
+      id: "redis-overview",
+      label: "레디스 설명",
+      icon: <HardDrive className="w-4 h-4" />,
+      path: "/redis-overview",
+    },
+    {
+      id: "redis-usage",
+      label: "레디스 활용",
+      icon: <Activity className="w-4 h-4" />,
+      path: "/redis-usage",
+    },
+    {
+      id: "redis-study",
+      label: "챌린지형 스터디",
+      icon: <Bookmark className="w-4 h-4" />,
+      path: "/redis-study",
+    },
+    {
+      id: "redis-spring",
+      label: "스프링 부트에서 Redis 활용",
+      icon: <Server className="w-4 h-4" />,
+      path: "/redis-spring",
+    },
+    {
+      id: "redis-kafka",
+      label: "Kafka와 비교",
+      icon: <Network className="w-4 h-4" />,
+      path: "/redis-kafka",
     },
   ],
   system: [
@@ -89,22 +175,6 @@ const MENU_GROUPS = {
   ],
 };
 
-/* 경로 → 활성 nav id 매핑 유틸 */
-function deriveActiveId(pathname: string): string {
-  if (pathname.startsWith("/developers")) return "developers";
-  if (pathname.startsWith("/about")) return "about";
-  if (pathname.startsWith("/manual")) return "manual";
-  if (pathname.startsWith("/user-guide")) return "user-guide";
-  if (pathname.startsWith("/system-report")) return "system-report";
-  if (pathname.startsWith("/todo")) return "todo";
-  if (pathname.startsWith("/fullstack-challenge")) return "fullstack-challenge";
-  if (pathname.startsWith("/plan-fullstack")) return "plan-fullstack";
-  if (pathname.startsWith("/plan-callcenter")) return "plan-callcenter";
-  if (pathname.startsWith("/startup-idea")) return "startup-idea";
-  if (pathname.startsWith("/home")) return "home";
-  return "developers";
-}
-
 /* ---------------------------------- */
 /* 드롭다운 메뉴 아이템 생성             */
 /* ---------------------------------- */
@@ -124,7 +194,7 @@ function createDropdownItems(navigate: (path: string) => void): DropdownItem[] {
     { id: "divider-1", label: "", divider: true },
     {
       id: "challenges-menu",
-      label: "프로젝트 챌린지",
+      label: "챌린지형 스터디",
       children: MENU_GROUPS.challenges.map((item) => ({
         id: item.id,
         label: item.label,
@@ -134,9 +204,9 @@ function createDropdownItems(navigate: (path: string) => void): DropdownItem[] {
     },
     { id: "divider-2", label: "", divider: true },
     {
-      id: "ideas-menu",
-      label: "창업 아이디어",
-      children: MENU_GROUPS.ideas.map((item) => ({
+      id: "si-skills-menu",
+      label: "스프링 생태계",
+      children: MENU_GROUPS.siSkills.map((item) => ({
         id: item.id,
         label: item.label,
         icon: item.icon,
@@ -144,6 +214,17 @@ function createDropdownItems(navigate: (path: string) => void): DropdownItem[] {
       })),
     },
     { id: "divider-3", label: "", divider: true },
+    {
+      id: "redis-skills-menu",
+      label: "Redis 생태계",
+      children: MENU_GROUPS.redisSkills.map((item) => ({
+        id: item.id,
+        label: item.label,
+        icon: item.icon,
+        onClick: () => navigate(item.path),
+      })),
+    },
+    { id: "divider-4", label: "", divider: true },
     {
       id: "system-menu",
       label: "시스템",
@@ -202,7 +283,6 @@ function UserMenuPlaceholder() {
 /* ---------------------------------- */
 
 export interface AppHeaderProps {
-  activeIdOverride?: string;
   onItemSelect?(id: string): void;
   leftSlot?: React.ReactNode;
   rightSlot?: React.ReactNode;
@@ -210,16 +290,12 @@ export interface AppHeaderProps {
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
-  activeIdOverride,
   onItemSelect,
   leftSlot,
   rightSlot,
   className = "",
 }) => {
-  const location = useLocation();
   const navigate = useNavigate();
-
-  const activeId = activeIdOverride ?? deriveActiveId(location.pathname);
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -233,17 +309,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
   const dropdownItems = createDropdownItems(handleNavigate);
 
-  // 현재 활성 메뉴의 정보 찾기
-  const getCurrentMenuItem = () => {
-    for (const group of Object.values(MENU_GROUPS)) {
-      const found = group.find((item) => item.id === activeId);
-      if (found) return found;
-    }
-    return MENU_GROUPS.main[0]; // 기본값
-  };
-
-  const currentItem = getCurrentMenuItem();
-
   return (
     <header
       className={`bg-white border-b border-gray-200 shadow-sm ${className}`}
@@ -252,14 +317,17 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         {/* 좌측 영역 */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">S</span>
+            <button
+              onClick={() => handleNavigate("/developers")}
+              className="flex items-center gap-2 hover:opacity-80 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+            >
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center transition-all duration-300 hover:from-blue-700 hover:to-blue-900">
+                <Users className="w-4 h-4 text-white transition-transform duration-300 hover:scale-110" />
               </div>
-              <span className="text-lg font-bold text-gray-900 tracking-tight">
-                SuperUI Admin
+              <span className="text-lg font-bold text-gray-900 tracking-tight transition-colors duration-300 hover:text-blue-700">
+                Dev SyncUp
               </span>
-            </div>
+            </button>
           </div>
           {leftSlot}
         </div>
@@ -268,6 +336,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         <div className="flex items-center gap-4">
           {/* 데스크톱: 직접 메뉴 노출 */}
           <div className="hidden lg:flex items-center gap-6">
+            {/* 개발자 관리 직접 링크 */}
+            <button
+              onClick={() => handleNavigate("/developers")}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Users className="w-4 h-4" />
+              <span className="text-sm font-medium">개발자 관리</span>
+            </button>
             {/* 주요 기능 */}
             <DropdownMenu
               trigger={
@@ -287,12 +363,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               onItemClick={(item) => handleItemSelect(item.id)}
             />
 
-            {/* 프로젝트 챌린지 */}
+            {/* 챌린지형 스터디 */}
             <DropdownMenu
               trigger={
                 <div className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
                   <Code2 className="w-4 h-4" />
-                  <span className="text-sm font-medium">프로젝트 챌린지</span>
+                  <span className="text-sm font-medium">챌린지형 스터디</span>
                 </div>
               }
               items={[
@@ -306,16 +382,35 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               onItemClick={(item) => handleItemSelect(item.id)}
             />
 
-            {/* 창업 아이디어 */}
+            {/* 스프링 생태계 */}
             <DropdownMenu
               trigger={
                 <div className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Lightbulb className="w-4 h-4" />
-                  <span className="text-sm font-medium">창업 아이디어</span>
+                  <Server className="w-4 h-4" />
+                  <span className="text-sm font-medium">스프링 생태계</span>
                 </div>
               }
               items={[
-                ...MENU_GROUPS.ideas.map((item) => ({
+                ...MENU_GROUPS.siSkills.map((item) => ({
+                  id: item.id,
+                  label: item.label,
+                  icon: item.icon,
+                  onClick: () => handleNavigate(item.path),
+                })),
+              ]}
+              onItemClick={(item) => handleItemSelect(item.id)}
+            />
+
+            {/* Redis 생태계 */}
+            <DropdownMenu
+              trigger={
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <HardDrive className="w-4 h-4" />
+                  <span className="text-sm font-medium">Redis 생태계</span>
+                </div>
+              }
+              items={[
+                ...MENU_GROUPS.redisSkills.map((item) => ({
                   id: item.id,
                   label: item.label,
                   icon: item.icon,
@@ -357,14 +452,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               items={dropdownItems}
               onItemClick={(item) => handleItemSelect(item.id)}
             />
-          </div>
-
-          {/* 현재 페이지 표시 */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
-            {currentItem.icon}
-            <span className="text-sm font-medium text-gray-700">
-              {currentItem.label}
-            </span>
           </div>
         </div>
 
