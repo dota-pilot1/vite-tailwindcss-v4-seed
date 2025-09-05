@@ -22,12 +22,6 @@ import DropdownMenu, {
 const MENU_GROUPS = {
   main: [
     {
-      id: "developers",
-      label: "개발자 관리",
-      icon: <Users className="w-4 h-4" />,
-      path: "/developers",
-    },
-    {
       id: "home",
       label: "대시보드",
       icon: <Home className="w-4 h-4" />,
@@ -273,16 +267,98 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
         {/* 중앙 영역 - 네비게이션 */}
         <div className="flex items-center gap-4">
-          <DropdownMenu
-            trigger={
-              <div className="flex items-center gap-2">
-                <Menu className="w-4 h-4" />
-                <span className="text-sm font-medium">메뉴</span>
-              </div>
-            }
-            items={dropdownItems}
-            onItemClick={(item) => handleItemSelect(item.id)}
-          />
+          {/* 데스크톱: 직접 메뉴 노출 */}
+          <div className="hidden lg:flex items-center gap-6">
+            {/* 주요 기능 */}
+            <DropdownMenu
+              trigger={
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Home className="w-4 h-4" />
+                  <span className="text-sm font-medium">주요 기능</span>
+                </div>
+              }
+              items={[
+                ...MENU_GROUPS.main.map((item) => ({
+                  id: item.id,
+                  label: item.label,
+                  icon: item.icon,
+                  onClick: () => handleNavigate(item.path),
+                })),
+              ]}
+              onItemClick={(item) => handleItemSelect(item.id)}
+            />
+
+            {/* 프로젝트 챌린지 */}
+            <DropdownMenu
+              trigger={
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Code2 className="w-4 h-4" />
+                  <span className="text-sm font-medium">프로젝트 챌린지</span>
+                </div>
+              }
+              items={[
+                ...MENU_GROUPS.challenges.map((item) => ({
+                  id: item.id,
+                  label: item.label,
+                  icon: item.icon,
+                  onClick: () => handleNavigate(item.path),
+                })),
+              ]}
+              onItemClick={(item) => handleItemSelect(item.id)}
+            />
+
+            {/* 창업 아이디어 */}
+            <DropdownMenu
+              trigger={
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Lightbulb className="w-4 h-4" />
+                  <span className="text-sm font-medium">창업 아이디어</span>
+                </div>
+              }
+              items={[
+                ...MENU_GROUPS.ideas.map((item) => ({
+                  id: item.id,
+                  label: item.label,
+                  icon: item.icon,
+                  onClick: () => handleNavigate(item.path),
+                })),
+              ]}
+              onItemClick={(item) => handleItemSelect(item.id)}
+            />
+
+            {/* 시스템 */}
+            <DropdownMenu
+              trigger={
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Settings className="w-4 h-4" />
+                  <span className="text-sm font-medium">시스템</span>
+                </div>
+              }
+              items={[
+                ...MENU_GROUPS.system.map((item) => ({
+                  id: item.id,
+                  label: item.label,
+                  icon: item.icon,
+                  onClick: () => handleNavigate(item.path),
+                })),
+              ]}
+              onItemClick={(item) => handleItemSelect(item.id)}
+            />
+          </div>
+
+          {/* 모바일/태블릿: 통합 메뉴 */}
+          <div className="flex lg:hidden">
+            <DropdownMenu
+              trigger={
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Menu className="w-4 h-4" />
+                  <span className="text-sm font-medium">메뉴</span>
+                </div>
+              }
+              items={dropdownItems}
+              onItemClick={(item) => handleItemSelect(item.id)}
+            />
+          </div>
 
           {/* 현재 페이지 표시 */}
           <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
